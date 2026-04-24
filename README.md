@@ -60,8 +60,10 @@ gateforge-blueprint/
 │   ├── incident-reports/
 │   │   └── INC-<NNN>.md              # Post-incident reports (ITIL)
 │   ├── sla-tracking.md               # SLI/SLO/SLA definitions and compliance (SRE)
-│   └── operational-logs/
-│       └── OPS-LOG-<YYYY-MM-DD>.md   # Daily operational logs
+│   ├── operational-logs/
+│   │   └── OPS-LOG-<YYYY-MM-DD>.md   # Daily operational logs
+│   ├── audit-evidence.md             # Audit log export, retention, access-reason logging (description, no raw logs)
+│   └── healthcare-readiness.md       # Healthcare readiness overlay (PHI, data flow, BAA, residency, BCP)
 └── project/
     ├── backlog.md                     # Product backlog with prioritized items
     ├── iterations/
@@ -69,6 +71,9 @@ gateforge-blueprint/
     ├── releases/
     │   └── RELEASE-<semver>.md       # Release notes per semantic version
     ├── decision-log.md               # Architectural and project decision records
+    ├── admin-portal-validation.md    # Blueprint validation rules & traceability model for the Admin Portal
+    ├── compliance-controls.md        # Compliance controls catalog (ownership, status, evidence links)
+    ├── release-evidence-pack.md      # Per-release evidence pack guidance and template
     └── status-reports/
         └── STATUS-<YYYY-MM-DD>.md    # Weekly status reports from all agents
 ```
@@ -282,6 +287,87 @@ Every document in this repository begins with a metadata table in this exact for
 ```
 
 Status lifecycle: `Draft` → `In Review` → `Approved` → (optionally `Deprecated`)
+
+---
+
+## Admin Portal Control Tower & Governance
+
+<!--
+  This section explains how the GateForge Blueprint Repository is used by the
+  Admin Portal Control Tower. The Blueprint is the AUTHORITATIVE LEDGER; the
+  Admin Portal is a READ-ONLY dashboard. Agents should not push evidence into
+  the portal directly — they update the ledger (this repository), and the
+  portal reflects it.
+-->
+
+### Blueprint as the Compliance Ledger
+
+This repository is the project's **compliance ledger**. Every validation,
+traceability link, release dossier, and compliance/healthcare-readiness record
+that the Admin Portal displays is read from the Markdown artifacts here.
+Teams update the ledger by committing to this repository; the portal reflects
+the state on the next validation pass.
+
+**Rule:** Never put secrets, real PHI, or real PII in any file. The portal
+extracts only safe metadata (document IDs, statuses, ownership, traceability
+links, control statuses). See `project/admin-portal-validation.md` § 5.
+
+### Governance Documents Index
+
+| Document | Purpose |
+|----------|---------|
+| [`project/admin-portal-validation.md`](project/admin-portal-validation.md) | Validation rules the Admin Portal enforces: required folders, metadata completeness, revision history, ID regex, ownership matrix, traceability completeness, evidence fields |
+| [`project/compliance-controls.md`](project/compliance-controls.md) | Catalog of compliance controls with owner, status, evidence link, and last-reviewed date |
+| [`project/release-evidence-pack.md`](project/release-evidence-pack.md) | Evidence bundle every release must carry: linked requirements, test cases, test results, unresolved defects, ADRs, incidents, human approvals, rollback plan, deployment notes |
+| [`operations/audit-evidence.md`](operations/audit-evidence.md) | How audit events are captured, exported, and retained (description only — raw logs are never committed) |
+| [`operations/healthcare-readiness.md`](operations/healthcare-readiness.md) | Healthcare readiness overlay: PHI classification, data flow, retention, access-reason logging, BAA register, data residency, BCP/DR, incident response, de-identification/synthetic data |
+
+### Traceability Model (authoritative)
+
+```
+User Story (US) → Functional Requirement (FR) → Test Case (TC) → Defect (DEF)
+    → Release (RELEASE-vX.Y.Z) → ADR (when a decision was needed)
+        → Incident (INC, when a defect escaped to production)
+```
+
+Every orphan or dangling link fails the Admin Portal's
+`blueprint.traceability.completeness` check. Full rules and minimum
+up/down links per artifact are documented in
+[`project/admin-portal-validation.md`](project/admin-portal-validation.md) § 4.
+
+### Admin Portal Validation Summary
+
+The Admin Portal runs these checks on every push to a project branch:
+
+| Check | Source of Truth |
+|---|---|
+| Required top-level folders present | `project/admin-portal-validation.md` § 3.1 |
+| Metadata complete & versions valid | § 3.2 |
+| Revision History tables present & current | § 3.3 |
+| All IDs match regex conventions | § 3.4 |
+| Ownership matches directory authority | § 3.5 |
+| Full US → FR → TC → DEF → Release traceability | § 3.6, § 4 |
+| No secrets / PHI / PII leaked into artifacts | § 5.2 |
+| Every release has a complete evidence pack | `project/release-evidence-pack.md` |
+| Compliance controls catalog is current | `project/compliance-controls.md` |
+| Healthcare readiness overlay complete (when in PHI scope) | `operations/healthcare-readiness.md` |
+
+Validation badge states: `green` (all checks pass), `amber` (traceability or
+metadata staleness), `red` (structural failure or prohibited content — blocks
+release).
+
+### Healthcare Readiness & Compliance Scope
+
+When a project handles PHI, the healthcare readiness overlay
+(`operations/healthcare-readiness.md`) is mandatory and is re-verified in every
+release evidence pack. The overlay covers PHI classification, data flow,
+retention, access-reason logging, vendor/BAA register, data residency, audit
+log export, downtime/BCP, incident response, and de-identification / synthetic
+data guidance.
+
+**Language guidance:** Use **"healthcare readiness"** and **"compliance
+evidence"**. Do not claim HIPAA (or equivalent) certification in any artifact —
+formal certification is an external process and requires qualified counsel.
 
 ---
 
