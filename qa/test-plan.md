@@ -102,11 +102,17 @@ This plan covers testing for the following system boundaries:
 
 | Test Level    | Scope                                                    | Tools                          | Owner          |
 |---------------|----------------------------------------------------------|--------------------------------|----------------|
-| Unit          | Individual functions, methods, classes                    | Jest, ts-jest                  | QC Agent VM-4  |
-| Integration   | API contracts, service-to-service, database interactions | Jest + Supertest, Testcontainers | QC Agent VM-4 |
-| E2E           | Full user workflows through the UI and API               | Playwright, Cypress            | QC Agent MiniMax 2.7 |
-| Performance   | Load, stress, endurance, spike testing                   | k6, Artillery                  | QC Agent MiniMax 2.7 |
-| Security      | OWASP Top 10, authentication/authorization, input validation | OWASP ZAP, Snyk, custom scripts | QC Agent VM-4 |
+| Unit          | Individual functions, methods, classes                    | Jest, ts-jest                  | QC role        |
+| Integration   | API contracts, service-to-service, database interactions | Jest + Supertest, Testcontainers | QC role      |
+| E2E (Lane A)  | Deterministic UI workflows via OpenClaw + Playwright MCP, headless Chromium | Playwright, OpenClaw, Cucumber/Gherkin | QC role |
+| **UI Exploratory (Lane B)** | **AI-driven signed-in journeys via OpenClaw + Chrome DevTools MCP, headful Chromium** | **OpenClaw Agent (Claude Sonnet 4.6 / MiniMax 2.7), Chrome DevTools MCP** | **QC role** |
+| **Visual Regression** | **Screenshot diff on critical pages** | **Playwright + pixelmatch + `qa/visual-baselines/`** | **QC role** |
+| **Accessibility** | **WCAG 2.1 AA on every public page** | **axe-core (`@axe-core/playwright`)** | **QC role** |
+| **Web Performance** | **LCP / CLS / TBT budgets per page** | **Lighthouse CI** | **QC role** |
+| Performance   | Load, stress, endurance, spike testing                   | k6, Artillery                  | QC role        |
+| Security      | OWASP Top 10, authentication/authorization, input validation | OWASP ZAP, Snyk, custom scripts | QC role |
+
+> **UI Auto-Test layers** (E2E Lane A, UI Exploratory Lane B, Visual, Accessibility, Web Performance) are governed by the GateForge **UI Auto-Test Standard**. Per-project instantiation lives in [`ui-auto-test-plan.md`](ui-auto-test-plan.md). Lane configuration files (`playwright.config.ts`, `openclaw.qa.yaml`, `docker-compose.qa.yml`, `scripts/bootstrap-qa-runner.sh`) are mandatory and reviewed at the QC release gate (gates G-UI-1 through G-UI-7).
 
 ### 4.2 Test Design Techniques
 
@@ -129,7 +135,11 @@ This plan covers testing for the following system boundaries:
 |--------------------|------------------|-------------------------------------------------|
 | Unit Tests         | 100%             | All unit tests must be automated and in CI.      |
 | Integration Tests  | 100%             | All API and service tests automated in CI.       |
-| E2E Tests          | ≥ 80%            | Critical user flows automated; edge cases manual.|
+| E2E Tests (Lane A) | 100%             | Every critical user journey from `qa/features/` automated. |
+| UI Exploratory (Lane B) | 100% of `intents.md` | AI explorer drives every intent block nightly. |
+| Visual Regression  | 100% of `visual-baselines/` | Pixel diff < 0.1%. |
+| Accessibility      | 100%             | axe-core critical issues = 0 on every PR. |
+| Web Performance    | 100%             | Lighthouse perf ≥ 80 on listed pages, every PR. |
 | Performance Tests  | 100%             | All load/stress tests scripted and repeatable.   |
 | Security Tests     | ≥ 70%            | SAST/DAST automated; manual pen-test quarterly.  |
 

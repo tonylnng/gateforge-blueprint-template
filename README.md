@@ -46,6 +46,21 @@ gateforge-blueprint/
 │       └── <module-name>.md           # Per-module implementation documentation
 ├── qa/
 │   ├── test-plan.md                   # Master test plan (IEEE 829)
+│   ├── ui-auto-test-plan.md           # GateForge UI Auto-Test Standard, instantiated for this project
+│   ├── intents.md                     # AI explorer intents for Lane B (one block per critical user journey)
+│   ├── playwright.config.ts           # Lane A Playwright config (committed)
+│   ├── openclaw.qa.yaml               # OpenClaw profiles for Lane A (`openclaw`) and Lane B (`user`)
+│   ├── docker-compose.qa.yml          # Lane B headful Chrome stack (browserless/chrome + mailpit)
+│   ├── scripts/
+│   │   └── bootstrap-qa-runner.sh     # Idempotent setup for the headless Ubuntu QC runner
+│   ├── features/                      # Gherkin .feature files for Lane A
+│   ├── steps/                         # Step definitions
+│   ├── pages/                         # Page Object Model classes
+│   ├── fixtures/                      # Seed scripts, test data
+│   ├── visual-baselines/              # PNG baselines for visual regression
+│   ├── ai-explorer/
+│   │   ├── prompts/                   # System / per-intent prompt templates
+│   │   └── generated/                 # AI-proposed tests (PR-reviewed before promotion)
 │   ├── test-cases/
 │   │   └── TC-<module>-<area>.md      # Test case files per module and area (ISTQB)
 │   ├── test-reports/
@@ -381,6 +396,7 @@ formal certification is an external process and requires qualified counsel.
 | OWASP | Security | `design/security-design.md` |
 | IEEE 829 | Test documentation | `qa/test-plan.md` |
 | ISTQB | Test cases | `qa/test-cases/*.md` |
+| **GateForge UI Auto-Test Standard** | Browser-based testing for every UI project | `qa/ui-auto-test-plan.md`, `qa/intents.md`, `qa/playwright.config.ts`, `qa/openclaw.qa.yaml`, `qa/docker-compose.qa.yml`, `qa/scripts/bootstrap-qa-runner.sh` |
 | SRE (Google) | SLI/SLO/SLA | `operations/sla-tracking.md` |
 | ITIL | Incident management | `operations/incident-reports/*.md` |
 | Semantic Versioning | Releases | `project/releases/*.md` |
