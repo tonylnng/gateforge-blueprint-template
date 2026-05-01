@@ -32,13 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - [PLACEHOLDER — Security-related changes]
 
-<!-- AGENT INSTRUCTION:
-     - The [Unreleased] section is the staging area between releases. The auto-bump CI workflow
-       (.github/workflows/version-bump.yml) reads commit messages on every push and creates a
-       new dated section directly below [Unreleased].
-     - The [Unreleased] block is auto-reset to placeholders after every successful version bump.
-     - DO NOT manually add a new ## [X.Y.Z] section. The CI does that and creates the matching git tag.
-     - DO NOT manually edit the VERSION file. -->
+---
+
+## [0.2.1] - 2026-05-01
+
+### Fixed
+- [Architect] make bump parser tolerant of plain Conventional Commits
+
 
 ---
 
