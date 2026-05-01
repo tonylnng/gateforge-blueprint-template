@@ -59,12 +59,21 @@ jobs:
             >> "$GITHUB_OUTPUT"
 
       - name: Validate VERSION file is unchanged by humans
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
         run: |
-          # If VERSION was modified in this push by anyone other than the bot,
-          # fail loudly. Only the workflow may edit VERSION.
-          if git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}" | grep -qx "VERSION"; then
-            echo "::error::VERSION file was modified outside the auto-bump workflow. Manual edits are forbidden — see VERSIONING.md."
-            exit 1
+          set -euo pipefail
+          # Only the workflow may edit VERSION. Reject any human-authored change.
+          # Exception: the very first push that introduces the VERSION file
+          # (file did NOT exist at BEFORE_SHA) is the bootstrap commit and is allowed.
+          if git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" | grep -qx "VERSION"; then
+            if git cat-file -e "${BEFORE_SHA}:VERSION" 2>/dev/null; then
+              echo "::error::VERSION file was modified outside the auto-bump workflow. Manual edits are forbidden — see VERSIONING.md."
+              exit 1
+            else
+              echo "::notice::Bootstrap detected — VERSION file is being introduced for the first time. Skipping human-edit check."
+            fi
           fi
 
       - name: Apply version bump
