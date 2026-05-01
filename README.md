@@ -13,8 +13,11 @@ This repository is the **single source of truth** for a GateForge project. It co
 **Key principle:** No agent operates from memory or assumption. Every decision, requirement, design choice, and test result is captured here in structured Markdown documents. If it's not in this repository, it doesn't exist.
 
 **Owner:** Tony NG  
+**Repository Version:** see `/VERSION` (single source of truth)  
 **Tech Stack:** TypeScript · React · NestJS · Docker · Redis · PostgreSQL · Kubernetes · React Native  
 **Standards:** IEEE 830 · ISO 25010 · C4 Model · OWASP · IEEE 829 · ISTQB · SRE · ITIL · SemVer
+
+> **Mandatory entry point for every agent:** before doing anything in your owned directory, open the `AGENTS.md` file in that directory. It lists the documents you must read first, the Pre-Flight Acknowledgement to include in your PR, and the gates that the Admin Portal will enforce. See § Agent Compliance Enforcement below.
 
 ---
 
@@ -23,28 +26,40 @@ This repository is the **single source of truth** for a GateForge project. It co
 ```
 gateforge-blueprint/
 ├── README.md                          # This file — master guide for the entire repository
+├── VERSION                            # Current repo version (managed only by the auto-bump CI)
+├── VERSIONING.md                      # Authoritative versioning policy (MAJOR human / MINOR & PATCH agent)
+├── CHANGELOG.md                       # Keep a Changelog format; auto-appended on every push
+├── .github/
+│   ├── workflows/
+│   │   └── version-bump.yml           # CI workflow that enforces the versioning policy on every push
+│   └── PULL_REQUEST_TEMPLATE.md       # Mandatory PR template (Pre-Flight Acknowledgement + version-bump declaration)
 ├── requirements/
+│   ├── AGENTS.md                      # MANDATORY entry point for the Architect when editing requirements/
 │   ├── user-requirements.md           # Raw user requirements captured from Tony (IEEE 830)
 │   ├── functional-requirements.md     # Decomposed functional requirements per module
 │   └── non-functional-requirements.md # Quality attributes and performance targets (ISO 25010)
 ├── architecture/
+│   ├── AGENTS.md                      # MANDATORY entry point for the Architect when editing architecture/
 │   ├── technical-architecture.md      # System architecture using C4 model with Mermaid diagrams
 │   ├── data-model.md                  # Entity-relationship model, schema DDL, indexing strategy
 │   └── api-specifications/
 │       ├── README.md                  # Guide for API spec files and OpenAPI conventions
 │       └── *.openapi.yaml             # Per-service OpenAPI 3.0 specification files
 ├── design/
+│   ├── AGENTS.md                      # MANDATORY entry point for the System Designer
 │   ├── infrastructure-design.md       # Cloud infrastructure, networking, resource provisioning
 │   ├── security-design.md             # Authentication, authorization, encryption, OWASP controls
 │   ├── resilience-design.md           # Circuit breakers, retries, fallbacks, chaos engineering
 │   ├── database-design.md             # Query optimization, connection pooling, replication
 │   └── monitoring-design.md           # Observability stack, alerting rules, dashboards
 ├── development/
+│   ├── AGENTS.md                      # MANDATORY entry point for Developer agents
 │   ├── coding-standards.md            # Language-specific style guides and linting rules
 │   ├── git-workflow.md                # Branching strategy, PR process, CI integration
 │   └── modules/
 │       └── <module-name>.md           # Per-module implementation documentation
 ├── qa/
+│   ├── AGENTS.md                      # MANDATORY entry point for QC Agents (with explicit E2E gate)
 │   ├── test-plan.md                   # Master test plan (IEEE 829)
 │   ├── test-cases/
 │   │   └── TC-<module>-<area>.md      # Test case files per module and area (ISTQB)
@@ -55,6 +70,7 @@ gateforge-blueprint/
 │   └── metrics/
 │       └── qa-dashboard.md            # Test coverage, defect density, pass rates
 ├── operations/
+│   ├── AGENTS.md                      # MANDATORY entry point for the Operator
 │   ├── deployment-runbook.md          # Step-by-step deployment procedures
 │   ├── rollback-procedures.md         # Rollback steps for each service
 │   ├── incident-reports/
@@ -65,6 +81,7 @@ gateforge-blueprint/
 │   ├── audit-evidence.md             # Audit log export, retention, access-reason logging (description, no raw logs)
 │   └── healthcare-readiness.md       # Healthcare readiness overlay (PHI, data flow, BAA, residency, BCP)
 └── project/
+    ├── AGENTS.md                      # MANDATORY entry point for cross-agent contributions to project/
     ├── backlog.md                     # Product backlog with prioritized items
     ├── iterations/
     │   └── ITER-<NNN>.md             # Iteration plans and retrospectives
@@ -368,6 +385,112 @@ data guidance.
 **Language guidance:** Use **"healthcare readiness"** and **"compliance
 evidence"**. Do not claim HIPAA (or equivalent) certification in any artifact —
 formal certification is an external process and requires qualified counsel.
+
+---
+
+## Versioning Principle
+
+<!--
+  AGENT INSTRUCTION: This is the summary. The authoritative spec is /VERSIONING.md.
+  Every agent must read /VERSIONING.md before their first push. The auto-bump CI
+  enforces these rules on every push to every branch.
+-->
+
+Every change destined for any environment — Dev, UAT, Production, or even a
+documentation-only edit — **must** be pushed to GitHub first. GitHub is the
+single audit trail for every change. The version recorded in `/VERSION` lets us
+point to the exact state of the blueprint at any moment in time.
+
+**Format:** `v[MAJOR].[MINOR].[PATCH]` — e.g., `v1.0.0`.
+
+| Segment | Controller | Trigger | Reset effect |
+|---|---|---|---|
+| **MAJOR** | **Tony NG** (human, explicit instruction only) | Tony decides the change is large enough | MINOR → 0, PATCH → 0 |
+| **MINOR** | **AI agent** (auto) | At least one `feat` commit in the push (or `feat` + `fix` mix) | PATCH → 0 |
+| **PATCH** | **AI agent** (auto) | Pure bug fixes / refactors / docs / chores | — |
+
+**Critical rules:**
+
+- The auto-bump workflow runs on **every push to every branch** — including
+  doc-only pushes.
+- The `VERSION` file is written **only** by the workflow. Manual edits are
+  rejected by CI.
+- A MAJOR bump requires the trailer `Version-Bump: major` on the last commit,
+  authored by Tony.
+- Full spec: [`VERSIONING.md`](VERSIONING.md). ADR record: [`project/decision-log.md`](project/decision-log.md) ADR-005.
+
+---
+
+## Agent Compliance Enforcement
+
+<!--
+  AGENT INSTRUCTION: This section addresses a recurring problem — agents
+  ignoring documents in their own directory (e.g. QC missing the E2E branch
+  of test-plan.md). The four-layer pattern below is mandatory.
+-->
+
+Documentation drift is the #1 risk to a multi-agent project. The following
+four-layer enforcement pattern is mandatory and applies to every role.
+
+### Layer 1 — One mandatory entry point per role: `AGENTS.md`
+
+Each role-owned directory has an `AGENTS.md` listing every document the
+agent must read **before** acting, in order. The agent reads its `AGENTS.md`
+first, every time, no exceptions.
+
+| Role | Manifest |
+|---|---|
+| System Architect (requirements work) | [`requirements/AGENTS.md`](requirements/AGENTS.md) |
+| System Architect (architecture work) | [`architecture/AGENTS.md`](architecture/AGENTS.md) |
+| System Designer | [`design/AGENTS.md`](design/AGENTS.md) |
+| Developers | [`development/AGENTS.md`](development/AGENTS.md) |
+| QC Agents | [`qa/AGENTS.md`](qa/AGENTS.md) |
+| Operator | [`operations/AGENTS.md`](operations/AGENTS.md) |
+| Cross-agent (project/ updates) | [`project/AGENTS.md`](project/AGENTS.md) |
+
+### Layer 2 — Pre-Flight Acknowledgement in every PR
+
+Every PR description (and every test report / deployment log entry) MUST
+begin with a Pre-Flight Acknowledgement block listing every doc the agent
+read, with the version of each doc at time of reading. The format is
+standardized in each `AGENTS.md` and in [`/.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md).
+
+```markdown
+## Pre-Flight Acknowledgement
+- Role: QC Agent VM-4
+- Task: Execute test plan for ITER-002
+- Docs read (with version):
+  - qa/AGENTS.md v1.0
+  - qa/test-plan.md v1.2
+  - requirements/functional-requirements.md v1.4
+- Mandatory gates honored:
+  - [x] QA-G3 E2E suite executed (coverage 87%)
+  - [x] Defect template followed for DEF-042
+```
+
+### Layer 3 — Evidence of compliance inside the deliverable
+
+Every downstream artifact (test report, deployment log, ADR, status report)
+must cite the source doc + version it followed. Example: "Executed per
+`qa/test-plan.md` v1.2 §4.3 E2E suite." Untraced deliverables fail
+validation.
+
+### Layer 4 — Admin Portal validation gates
+
+The Admin Portal validation pass enforces:
+
+| Check | Failure mode |
+|---|---|
+| `agent.preflight.present` | PR has no Pre-Flight Acknowledgement, or the block has empty checkboxes |
+| `agent.doc-citation.present` | Deliverables (test report, deploy log, ADR) lack source-doc citations |
+| `agent.test-coverage.gates` | A QC report was filed without honoring all mandatory test levels (e.g., E2E skipped without an Architect waiver) |
+| `versioning.semver.compliance` | A push lacks valid commit prefixes, so the auto-bumper cannot decide MAJOR/MINOR/PATCH |
+
+These checks are listed in full in
+[`project/admin-portal-validation.md`](project/admin-portal-validation.md) §3.7.
+A failed check sets the badge to `amber` (recoverable) or `red` (release
+blocked). Combined with the auto-bump workflow on every push, this means an
+agent who skips its docs gets caught **before** the change can ship.
 
 ---
 

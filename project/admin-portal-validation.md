@@ -1,5 +1,7 @@
 # Admin Portal Validation & Traceability
 
+> **🛑 STOP — Mandatory reading for every agent that opens a PR or release.** Read **[`project/AGENTS.md`](AGENTS.md)** and **[`/VERSIONING.md`](../VERSIONING.md)** before editing any blueprint document. Every PR that touches this repository must include a **Pre-Flight Acknowledgement** (see `§3.7`) — absence blocks the `agent.preflight.present` validation badge.
+
 <!--
   AGENT INSTRUCTION: This document defines how the GateForge Blueprint Repository is
   validated by the Admin Portal Control Tower. The Blueprint is the authoritative
@@ -14,10 +16,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `PRJ-ADMIN-PORTAL-001` |
-| **Version** | `0.1.0` |
+| **Version** | `0.2.0` |
 | **Status** | `Draft` |
 | **Owner** | System Architect |
-| **Last Updated** | `[PLACEHOLDER — YYYY-MM-DD]` |
+| **Last Updated** | `2026-05-01` |
 | **Approved By** | `—` |
 
 ---
@@ -41,7 +43,8 @@ Teams update the ledger; the portal reflects it.
 
 | Version | Date | Author | Change Summary |
 |---|---|---|---|
-| 0.1.0 | [PLACEHOLDER] | System Architect | Initial draft |
+| 0.2.0 | 2026-05-01 | System Architect | Added §3.7 Agent-Compliance & Versioning checks (`versioning.semver.compliance`, `agent.preflight.present`, `agent.doc-citation.present`, `agent.test-coverage.gates`); added pre-flight banner; bumped to v0.2.0. |
+| 0.1.0 | [PLACEHOLDER] | System Architect | Initial draft. |
 
 ---
 
@@ -148,6 +151,30 @@ See §4 for the full traceability model. The Admin Portal enforces:
   `project/release-evidence-pack.md`).
 
 Orphans and dangling links fail `blueprint.traceability.completeness`.
+
+### 3.7 Agent-Compliance & Versioning Rules (added in v0.2.0)
+
+<!--
+  AGENT INSTRUCTION: These four rules enforce the four-layer agent-compliance pattern
+  agreed by the repo owner (Tony NG, 2026-05-01). They run on every push.
+  Read /VERSIONING.md and the per-role AGENTS.md before editing.
+-->
+
+The Admin Portal runs these checks on every push, in addition to the structural
+checks above:
+
+| Rule ID | What it verifies | How it is computed | Failure mode |
+|---|---|---|---|
+| `versioning.semver.compliance` | The `VERSION` file at repo root exists, contains a single line matching `^\d+\.\d+\.\d+$`, and has been updated by the auto-bump workflow on every push that introduces a non-`[skip version-bump]` commit. The latest CHANGELOG entry's heading version equals the `VERSION` file. | Reads `/VERSION`, parses `CHANGELOG.md`, inspects the latest tag, cross-checks GitHub Actions run for `version-bump.yml`. | Blocks the `validation: green` badge. Requires a corrective push. |
+| `agent.preflight.present` | Every PR description (and every release-evidence pack) starts with a **Pre-Flight Acknowledgement** block listing each role-relevant `AGENTS.md` plus the document version the author read. | Parses the PR body / evidence-pack section header `## Pre-Flight Acknowledgement` and validates the table shape. | Blocks merge. Author must add the block, re-run CI. |
+| `agent.doc-citation.present` | Deliverables that change behaviour (specs, test cases, runbooks, ADRs) cite the source document **and version** they comply with (e.g., `per qa/test-plan.md v1.1 §2.3`). | Greps for the citation pattern `per <relative-path> v<X.Y>(\.\d+)? §` in the changed files. | Marks the file `validation: amber`; high-impact ADRs are blocked outright. |
+| `agent.test-coverage.gates` | The QC report attached to a release records explicit pass/fail for **all** gates in `qa/AGENTS.md` §4 (QA-G1…QA-G8) including the **E2E gate (QA-G3)**. | Parses `qa/reports/TEST-REPORT-ITER-*.md` for the eight-gate matrix. | Blocks `release.evidence.complete` until QA-G3 (and all others) report a result. This rule directly addresses the prior pain point of QC skipping E2E. |
+
+**Implementation notes:**
+
+- `versioning.semver.compliance` is the gate behind every push, including documentation-only commits, per the repo owner's policy.
+- `agent.preflight.present` requires the **exact** Pre-Flight template defined in `§3` of every per-role `AGENTS.md` file.
+- The `agent.test-coverage.gates` rule is **non-bypassable** — a missing gate row counts as a failure, not as “not applicable”. Use “N/A with rationale” if a gate truly does not apply, and the QC Lead must initial it.
 
 ---
 
@@ -270,6 +297,10 @@ The Admin Portal surfaces one of:
 - [ ] `operations/audit-evidence.md` documents how audit logs are exported and retained (no logs in repo).
 - [ ] `operations/healthcare-readiness.md` exists when the project handles health data.
 - [ ] No file contains plaintext secrets, real PHI, or real PII (see §5.2).
+- [ ] `/VERSION` file exists, matches semver, and matches the latest `CHANGELOG.md` entry (`versioning.semver.compliance`).
+- [ ] PR description includes a Pre-Flight Acknowledgement block (`agent.preflight.present`).
+- [ ] Every behavioural change cites its source doc + version (`agent.doc-citation.present`).
+- [ ] QC report records explicit pass/fail for **every** gate QA-G1…QA-G8, including the E2E gate QA-G3 (`agent.test-coverage.gates`).
 
 ---
 

@@ -10,11 +10,13 @@
 | Field          | Value                                    |
 |----------------|------------------------------------------|
 | Document ID    | QA-README-001                            |
-| Version        | 1.0                                      |
+| Version        | 1.1                                      |
 | Owner          | QC Agents (VM-4, MiniMax 2.7)           |
 | Reviewer       | System Architect                         |
-| Status         | [PLACEHOLDER]                            |
-| Last Updated   | [PLACEHOLDER]                            |
+| Status         | Approved                                 |
+| Last Updated   | 2026-05-01                               |
+
+> **First action for every QC Agent:** open [`qa/AGENTS.md`](AGENTS.md) and complete the Pre-Flight Acknowledgement before any test artifact. The E2E execution gate (QA-G3) is mandatory.
 
 ---
 
@@ -237,13 +239,27 @@ PERF-REPORT-<type>-<YYYY-MM-DD>.md
   8. Begin producing test cases
 -->
 
-1. Read this `README.md` fully.
-2. Read [`../QA-FRAMEWORK.md`](../QA-FRAMEWORK.md) for governing methodology.
-3. Read [`test-plan.md`](test-plan.md) for the master test strategy.
-4. Read the format guide for the artifact you are producing:
+1. **Read [`AGENTS.md`](AGENTS.md) FIRST.** This is the mandatory entry point
+   for every QC Agent. It lists the full reading order, the Pre-Flight
+   Acknowledgement template, and the eight QA gates (QA-G1 through QA-G8).
+2. Read this `README.md` fully.
+3. Read [`../QA-FRAMEWORK.md`](../QA-FRAMEWORK.md) for governing methodology.
+4. Read [`test-plan.md`](test-plan.md) for the master test strategy.
+5. Read the format guide for the artifact you are producing:
    - [`test-cases/README.md`](test-cases/README.md) — for test cases
    - [`reports/README.md`](reports/README.md) — for test reports
    - [`defects/README.md`](defects/README.md) — for defect reports
-5. Read the relevant requirements from `../requirements/`.
-6. Produce your artifacts following the templates exactly.
-7. Update `metrics.md` after every test execution.
+6. Read the relevant requirements from `../requirements/`.
+7. Produce your artifacts following the templates exactly. Every report MUST
+   begin with a Pre-Flight Acknowledgement and cite the source documents it
+   followed (per `qa/AGENTS.md` §3).
+8. Update `metrics.md` after every test execution.
+
+---
+
+## Revision History
+
+| Version | Date       | Author                | Changes |
+|---------|------------|-----------------------|---------|
+| 1.0     | [PLACEHOLDER] | QC Agents          | Initial QA directory README. |
+| 1.1     | 2026-05-01 | QC Agents + Architect | Added pointer to `qa/AGENTS.md` as first action; added Pre-Flight Acknowledgement and source-doc citation requirements to the Getting Started checklist. |

@@ -1,0 +1,93 @@
+name: Version Bump
+
+# Auto-increments the project version on every push, per VERSIONING.md.
+# - PATCH: pure bug fixes / docs / chores
+# - MINOR: any 'feat' commit in the push (or feat + fix mix)
+# - MAJOR: only when a commit trailer 'Version-Bump: major' is present AND the author is Tony
+#
+# This workflow is the SOLE writer of the VERSION file. Manual edits to VERSION
+# are rejected by the validation step.
+
+on:
+  push:
+    branches:
+      - "**"
+
+concurrency:
+  group: version-bump-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+
+    # Skip the workflow's own writes to avoid infinite loops.
+    if: |
+      github.actor != 'github-actions[bot]' &&
+      !contains(github.event.head_commit.message, '[skip version-bump]')
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Determine version bump
+        id: bump
+        env:
+          GH_AUTHOR_LOGIN: ${{ github.actor }}
+          # Tony's GitHub login — the only identity allowed to trigger a MAJOR bump.
+          TONY_LOGIN: tonylnng
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+          python3 .github/workflows/scripts/decide_bump.py \
+            --before "$BEFORE_SHA" \
+            --after  "$AFTER_SHA"  \
+            --actor  "$GH_AUTHOR_LOGIN" \
+            --tony   "$TONY_LOGIN" \
+            >> "$GITHUB_OUTPUT"
+
+      - name: Validate VERSION file is unchanged by humans
+        run: |
+          # If VERSION was modified in this push by anyone other than the bot,
+          # fail loudly. Only the workflow may edit VERSION.
+          if git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}" | grep -qx "VERSION"; then
+            echo "::error::VERSION file was modified outside the auto-bump workflow. Manual edits are forbidden — see VERSIONING.md."
+            exit 1
+          fi
+
+      - name: Apply version bump
+        if: steps.bump.outputs.bump_type != 'none'
+        env:
+          BUMP_TYPE: ${{ steps.bump.outputs.bump_type }}
+          BUMP_SECTIONS: ${{ steps.bump.outputs.changelog_sections }}
+        run: |
+          set -euo pipefail
+          python3 .github/workflows/scripts/apply_bump.py \
+            --bump "$BUMP_TYPE" \
+            --sections-json "$BUMP_SECTIONS"
+
+      - name: Commit, tag, and push
+        if: steps.bump.outputs.bump_type != 'none'
+        env:
+          NEW_VERSION: ${{ steps.bump.outputs.new_version }}
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VERSION CHANGELOG.md
+          git commit -m "[CI] chore: bump version to ${NEW_VERSION} [skip version-bump]"
+          git tag -a "v${NEW_VERSION}" -m "Release v${NEW_VERSION}"
+          git push origin HEAD:${{ github.ref_name }}
+          git push origin "v${NEW_VERSION}"

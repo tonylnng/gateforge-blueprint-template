@@ -1,19 +1,34 @@
 # Coding Standards — Quick Reference
 
+> **🛑 STOP — Mandatory reading before any code change.** Every Developer agent (VM-3) MUST first read **[`development/AGENTS.md`](AGENTS.md)** and **[`/VERSIONING.md`](../VERSIONING.md)** and file a Pre-Flight Acknowledgement on every PR. PRs without a Pre-Flight block on the `agent.preflight.present` Admin Portal check.
+
 <!-- AGENT INSTRUCTION: This is a compact quick-reference for coding standards.
      The full, detailed development guide is in DEVELOPMENT-GUIDE.md at the repository root.
      Developer agents (VM-3) should reference this for day-to-day conventions.
-     The System Architect maintains this document. -->
+     The System Architect maintains this document.
+     Per /VERSIONING.md, every push auto-bumps VERSION via the GitHub Actions workflow.
+     Use Conventional Commits (feat / fix / docs / refactor / test / chore). -->
 
 | Field | Value |
 |---|---|
 | **Document ID** | DEV-STANDARDS-001 |
-| **Version** | 0.1.0 |
+| **Version** | 0.2.0 |
 | **Owner** | System Architect |
 | **Status** | Draft |
-| **Last Updated** | [PLACEHOLDER] |
+| **Last Updated** | 2026-05-01 |
 
 > **Full guide:** See [DEVELOPMENT-GUIDE.md](../DEVELOPMENT-GUIDE.md) for detailed standards, patterns, and architectural decisions.
+
+---
+
+## Revision History
+
+<!-- AGENT INSTRUCTION: Append-only. Never edit historical rows. -->
+
+| Version | Date | Author | Change Summary |
+|---|---|---|---|
+| 0.2.0 | 2026-05-01 | System Architect | Added AGENTS.md / VERSIONING.md pre-flight banner; aligned commit-type guidance with auto-bump policy. |
+| 0.1.0 | [PLACEHOLDER] | System Architect | Initial draft. |
 
 ---
 
@@ -170,16 +185,21 @@ import { User } from './entities/user.entity';
 [optional footer(s)]
 ```
 
-| Type | When to Use |
-|---|---|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `docs` | Documentation changes |
-| `style` | Formatting, white-space (no logic change) |
-| `refactor` | Code restructuring (no behavior change) |
-| `perf` | Performance improvement |
-| `test` | Adding or fixing tests |
-| `chore` | Build, CI, tooling changes |
+| Type | When to Use | Auto Version-Bump (per `/VERSIONING.md`) |
+|---|---|---|
+| `feat` | New feature | **MINOR** |
+| `fix` | Bug fix | **PATCH** |
+| `docs` | Documentation changes | **PATCH** |
+| `style` | Formatting, white-space (no logic change) | **PATCH** |
+| `refactor` | Code restructuring (no behavior change) | **PATCH** |
+| `perf` | Performance improvement | **PATCH** |
+| `test` | Adding or fixing tests | **PATCH** |
+| `chore` | Build, CI, tooling changes | **PATCH** |
+
+> **Notes:**
+> - Mixed `feat` + `fix` in one push → MINOR bump (PATCH resets to `0`).
+> - **MAJOR** is human-only — repo owner adds the `Version-Bump: major` commit trailer (see `/VERSIONING.md` §3).
+> - Add `[skip version-bump]` to a commit message ONLY when the workflow itself must not run (e.g. infrastructure-only repo automation).
 
 ### PR Checklist
 
