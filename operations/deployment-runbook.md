@@ -409,3 +409,12 @@ Initiate rollback if **any** of the following occur:
 | **K8s Namespace** | `gateforge-dev` | `gateforge-uat` | `gateforge-prod` |
 | **Replicas (API)** | 1 | 2 | 3+ (HPA) |
 | **Replicas (Web)** | 1 | 2 | 3+ (HPA) |
+
+---
+
+## Revision History
+
+| Version | Date          | Author                | Changes |
+|---------|---------------|-----------------------|---------|
+| 0.1.0   | [PLACEHOLDER] | Operator              | Initial deployment runbook draft. |
+| 0.2.0   | 2026-05-01    | Operator + Architect  | §1: pre-deployment checklist now requires GitHub push, auto-bump CI green, and version-tag match (items 1–3); added Pre-Flight Acknowledgement requirement (item 17). §8: new "Hotfix and Versioning Note" deferring all version writes to the auto-bump CI. Added pointer to `operations/AGENTS.md` and `/VERSIONING.md` in the metadata header. |

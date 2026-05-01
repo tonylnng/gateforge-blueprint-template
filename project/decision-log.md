@@ -1,5 +1,7 @@
 # Decision Log
 
+> **🛑 STOP — Mandatory reading before recording or revising any ADR.** Read **[`project/AGENTS.md`](AGENTS.md)** and **[`/VERSIONING.md`](../VERSIONING.md)** first. New ADRs MUST cite the AGENTS.md and VERSIONING.md sections they comply with (`agent.doc-citation.present`).
+
 <!-- AGENT INSTRUCTION: This is an append-only decision record for the GateForge project.
      The System Architect maintains this document. Decisions are NEVER deleted or modified
      after recording — only their status can change (accepted → superseded / deprecated).
@@ -8,10 +10,19 @@
 | Field | Value |
 |---|---|
 | **Document ID** | PRJ-DECISIONS-001 |
-| **Version** | 0.1.0 |
+| **Version** | 0.2.0 |
 | **Owner** | System Architect |
 | **Status** | Living Document |
-| **Last Updated** | [PLACEHOLDER] |
+| **Last Updated** | 2026-05-01 |
+
+---
+
+## Revision History
+
+| Version | Date | Author | Change Summary |
+|---|---|---|---|
+| 0.2.0 | 2026-05-01 | System Architect | Recorded **ADR-005** (Versioning Policy) and **ADR-006** (Agent Compliance Enforcement). |
+| 0.1.0 | [PLACEHOLDER] | System Architect | Initial decisions ADR-001…ADR-004. |
 
 ---
 
@@ -29,6 +40,8 @@
 | ADR-002 | 2026-03-10 | Database Selection | Need a relational database for structured data with strong ACID guarantees | Use PostgreSQL as the primary database | Industry standard, excellent TypeScript ORM support (Prisma), JSON column support, proven scalability | High | accepted | System Architect |
 | ADR-003 | 2026-03-12 | Authentication Strategy | Need secure, stateless authentication suitable for web and mobile clients | Use JWT with short-lived access tokens (15m) and long-lived refresh tokens (7d) stored in httpOnly cookies | Industry standard for SPAs, stateless reduces DB load, refresh tokens mitigate short access token risk | High | accepted | System Architect |
 | ADR-004 | 2026-03-15 | Real-time Communication | Need real-time notification delivery to connected clients | Use WebSocket (Socket.IO) over SSE | Bidirectional communication needed for future features, Socket.IO provides automatic reconnection and room support | Medium | accepted | System Architect |
+| ADR-005 | 2026-05-01 | Versioning Policy & Auto-Bump | Repo owner requires every push to bump `VERSION` automatically and tag a release in GitHub, including doc-only commits, so that history is fully traceable | Adopt semver `MAJOR.MINOR.PATCH`. **MAJOR** is human-only via `Version-Bump: major` commit trailer (author must be `tonylnng`). **MINOR / PATCH** auto-bumped by `.github/workflows/version-bump.yml` from Conventional-Commit types (`feat`→MINOR, `fix\|docs\|refactor\|test\|chore`→PATCH; mixed feat+fix→MINOR with PATCH reset). Workflow runs on every push, writes `VERSION`, prepends a CHANGELOG entry, creates a tag, and skips its own commit via `[skip version-bump]`. | Eliminates manual version drift; provides a single source of truth (`VERSION` + git tag); satisfies repo owner's auditability requirement | High | accepted | System Architect (proposed); Tony NG (approved) |
+| ADR-006 | 2026-05-01 | Agent Compliance Enforcement (four-layer pattern) | QC agents (and other roles) historically skipped sections of role-specific MD files (e.g., `qa/test-plan.md` E2E section). Need a way to make compliance unavoidable, not optional | Adopt a four-layer enforcement pattern: (1) per-role `AGENTS.md` as the mandatory entry point in every role-owned directory; (2) Pre-Flight Acknowledgement block at the top of every PR / release-evidence pack listing each AGENTS.md read with version; (3) doc-citation requirement on every behavioural change (`per <doc> v<X.Y> §N`); (4) Admin-Portal validation gates `agent.preflight.present`, `agent.doc-citation.present`, `agent.test-coverage.gates`, `versioning.semver.compliance`. Eight named QA gates in `qa/AGENTS.md` (QA-G1…QA-G8) make E2E (QA-G3) non-skippable. | Single mandatory entry point + machine-checkable evidence, addressing the QC E2E pain point directly | High | accepted | System Architect (proposed); Tony NG (approved) |
 
 <!-- AGENT INSTRUCTION: Add new rows above this comment. Use this template:
 
@@ -177,6 +190,118 @@ Use **WebSocket via Socket.IO** with the Redis adapter for horizontal scaling.
 - **Positive:** Bidirectional communication supports future features (real-time collaboration, typing indicators). Socket.IO's Redis adapter handles multi-pod scaling. Automatic reconnection and fallback to long polling.
 - **Negative:** Requires Redis adapter configuration. WebSocket connections consume more server memory than SSE. Need to handle connection lifecycle carefully.
 - **Neutral:** Socket.IO is a well-maintained library with strong NestJS integration (`@nestjs/websockets`).
+
+---
+
+### ADR-005: Versioning Policy & Auto-Bump
+
+**Date:** 2026-05-01
+**Status:** Accepted
+**Decided By:** System Architect (proposed) — Tony NG (approved)
+
+#### Context
+
+The GateForge Blueprint Repository did not have an enforced versioning convention.
+The repo owner (Tony NG) requires that **every push to the repository — including
+documentation-only commits — results in a traceable version bump and a corresponding
+GitHub tag**, so that any change can be located by version. The convention is
+`MAJOR.MINOR.PATCH` (e.g. `1.0.0`).
+
+The owner specified the bump rules:
+- **MAJOR** — human-only; the owner decides when application changes are large
+  enough to warrant it.
+- **MINOR** — auto, when a push contains feature upgrades. If a push contains both
+  features and bug-fixes, MINOR still bumps and PATCH resets to `0`.
+- **PATCH** — auto, when a push contains only fixes / refactors / tests / docs.
+
+#### Options Considered
+
+| Option | Pros | Cons |
+|---|---|---|
+| **Real GitHub Actions workflow that reads commit messages and bumps `VERSION` + tags** | Fully enforced; no human bookkeeping; runs on every push automatically; integrates with PR template & validation | Requires write access for the workflow; needs care to avoid recursion (`[skip version-bump]` trailer) |
+| Manual `VERSION` + CHANGELOG updates per PR | Simple, no automation needed | Easy to forget; defeats the owner's stated goal of *guaranteed* traceability |
+| Release-Please / semantic-release third-party tool | Mature, widely used | Heavier dependency; less aligned with the simple `VERSION` file the owner requested |
+
+#### Decision
+
+Adopt the GitHub Actions workflow approach with the following implementation:
+
+- `VERSION` file at repo root, single line, semver, baseline `0.2.0`.
+- `/VERSIONING.md` documents the policy and the bump decision tree.
+- `.github/workflows/version-bump.yml` runs on every push to any branch, with a
+  concurrency group keyed on the branch.
+- `decide_bump.py` parses commit subjects since the last tag and decides MAJOR /
+  MINOR / PATCH; rejects manual edits to `VERSION` (must be done by the workflow).
+- `apply_bump.py` writes the new `VERSION`, prepends a `CHANGELOG.md` entry, and
+  creates an annotated git tag.
+- The workflow's own commit carries `[skip version-bump]` to prevent recursion.
+- The workflow ignores commits authored by `github-actions[bot]`.
+- **MAJOR** is gated to author `tonylnng` AND the presence of a `Version-Bump: major`
+  commit trailer.
+- The Admin Portal validates `versioning.semver.compliance` (see
+  `project/admin-portal-validation.md` §3.7).
+
+#### Consequences
+
+- **Positive:** Every push produces a traceable version + tag automatically. The
+  `VERSION` file gives a single source of truth. The CHANGELOG is always in sync.
+  Documentation-only commits are versioned, satisfying the owner's intent.
+- **Negative:** Many tags will be produced (one per push). Slight CI cost per push.
+  Authors must use Conventional-Commit types or the workflow falls back to PATCH.
+- **Neutral:** Existing CHANGELOG history is preserved; the workflow appends new
+  entries above the most recent.
+
+---
+
+### ADR-006: Agent Compliance Enforcement (four-layer pattern)
+
+**Date:** 2026-05-01
+**Status:** Accepted
+**Decided By:** System Architect (proposed) — Tony NG (approved)
+
+#### Context
+
+The repo owner reported a recurring pain point: **QC agents skipped the E2E
+testing section of `qa/test-plan.md`**, even though it is a published quality
+gate. The same risk applies to every role-specific MD file (architecture,
+operations runbook, etc.). Markdown alone is not enforceable.
+
+#### Options Considered
+
+| Option | Pros | Cons |
+|---|---|---|
+| **Four-layer pattern: AGENTS.md entry points + Pre-Flight Acknowledgement + doc-citation requirement + Admin-Portal validation gates** | Single mandatory entry point per role; machine-checkable evidence; directly addresses the E2E pain point; reuses existing Admin Portal validation harness | Adds ceremony to every PR; agents must be retrained on the Pre-Flight format |
+| Add a checklist to the existing PR template only | Lightweight | Same failure mode — agents tick boxes without reading; no per-role enforcement |
+| Build a separate compliance bot that posts on every PR | Highly visible | Heavy to build; duplicates Admin Portal responsibilities |
+
+#### Decision
+
+Adopt the four-layer pattern:
+
+1. **Mandatory entry point** — a per-role `AGENTS.md` file lives at the root of
+   every role-owned directory (`requirements/`, `architecture/`, `design/`,
+   `development/`, `qa/`, `operations/`, `project/`). Each AGENTS.md lists
+   mandatory reading, the Pre-Flight template, role gates, commit conventions,
+   and known failure modes.
+2. **Pre-Flight Acknowledgement** — every PR / release-evidence pack starts with
+   a Pre-Flight block listing each AGENTS.md the author read with the version they
+   read.
+3. **Evidence-of-compliance citations** — deliverables cite the source doc
+   + version they comply with, e.g. `per qa/test-plan.md v1.1 §2.3`.
+4. **Admin Portal validation gates** — `agent.preflight.present`,
+   `agent.doc-citation.present`, `agent.test-coverage.gates` (named QA gates
+   QA-G1…QA-G8), `versioning.semver.compliance`. See
+   `project/admin-portal-validation.md` §3.7.
+
+#### Consequences
+
+- **Positive:** E2E (QA-G3) becomes non-skippable — a missing gate row in the QC
+  report fails `agent.test-coverage.gates`. Pre-Flight makes "I forgot to read X"
+  impossible to claim. Doc-citation makes drift detectable.
+- **Negative:** Higher ceremony per PR. Authors must update Pre-Flight when
+  AGENTS.md versions change.
+- **Neutral:** Pattern is composable — future roles can drop in their own
+  AGENTS.md without reworking the validation harness.
 
 <!-- AGENT INSTRUCTION: For each new significant decision, copy the template below:
 

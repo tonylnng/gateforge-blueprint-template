@@ -4,6 +4,8 @@
      Developer agents (VM-3) produce module documentation.
      The System Architect maintains coding standards and reviews all development docs. -->
 
+> **First action for every Developer:** open [`development/AGENTS.md`](AGENTS.md) and complete the Pre-Flight Acknowledgement before any code or module-doc commit. Per [`/VERSIONING.md`](../VERSIONING.md), every push triggers an auto-version-bump.
+
 ## Purpose
 
 The `development/` directory contains coding standards, conventions, and per-module technical documentation for the GateForge platform. These documents ensure consistent code quality across all developer agents and provide a reference for module interfaces, ownership, and dependencies.
@@ -34,3 +36,12 @@ The `development/` directory contains coding standards, conventions, and per-mod
 - **[architecture/](../architecture/)** — Technical architecture, data model, and API specifications
 - **[qa/](../qa/)** — Test plans and test cases that validate module behavior
 - **[project/backlog.md](../project/backlog.md)** — Work items assigned to developer agents
+
+---
+
+## Revision History
+
+| Version | Date       | Author    | Changes |
+|---------|------------|-----------|---------|
+| 1.0     | [PLACEHOLDER] | Developers | Initial development directory README. |
+| 1.1     | 2026-05-01 | Architect + Developers | Added pointer to `development/AGENTS.md` and `/VERSIONING.md` at top. |

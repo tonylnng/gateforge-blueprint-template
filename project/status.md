@@ -1,5 +1,7 @@
 # Project Status
 
+> **🛑 STOP — Mandatory reading before posting status updates.** Read **[`project/AGENTS.md`](AGENTS.md)** and **[`/VERSIONING.md`](../VERSIONING.md)** first. Every status update must record the **`VERSION` after this push** and which agents filed a Pre-Flight Acknowledgement.
+
 <!-- AGENT INSTRUCTION: This is a living status document updated at least weekly (daily during active iterations).
      The System Architect maintains overall status. All agents report their task status here.
      Use the health indicators: 🟢 Green (on track), 🟡 Yellow (at risk), 🔴 Red (blocked/behind). -->
@@ -7,10 +9,19 @@
 | Field | Value |
 |---|---|
 | **Document ID** | PRJ-STATUS-001 |
-| **Version** | 0.1.0 |
+| **Version** | 0.2.0 |
 | **Owner** | System Architect |
 | **Status** | Living Document |
-| **Last Updated** | [PLACEHOLDER] |
+| **Last Updated** | 2026-05-01 |
+
+---
+
+## Revision History
+
+| Version | Date | Author | Change Summary |
+|---|---|---|---|
+| 0.2.0 | 2026-05-01 | System Architect | Added “Version after this push” and “Agents that filed Pre-Flight” fields per ADR-005 / ADR-006. |
+| 0.1.0 | [PLACEHOLDER] | System Architect | Initial status doc. |
 
 ---
 
@@ -26,6 +37,8 @@
 | **Budget** | [PLACEHOLDER — on-track / at-risk / over] | [PLACEHOLDER] |
 | **Quality** | [PLACEHOLDER — acceptable / at-risk / below-target] | [PLACEHOLDER] |
 | **Team** | [PLACEHOLDER — stable / at-risk / understaffed] | [PLACEHOLDER] |
+| **Version after this push** | [PLACEHOLDER — X.Y.Z, must match `/VERSION`] | Auto-bumped by `.github/workflows/version-bump.yml`; cross-check against `CHANGELOG.md` topmost entry. |
+| **Agents that filed Pre-Flight** | [PLACEHOLDER — e.g., Architect ✅, QC ✅, Operator ✅, Developers ✅, Designer N/A] | One ✅ per role that touched the repo since the last status update; missing roles fail `agent.preflight.present`. |
 
 ---
 

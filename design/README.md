@@ -6,6 +6,8 @@
   Keep this file updated whenever a design document is added, removed, or significantly changed.
 -->
 
+> **First action for the System Designer:** open [`design/AGENTS.md`](AGENTS.md) and complete the Pre-Flight Acknowledgement before editing any design document. Per [`/VERSIONING.md`](../VERSIONING.md), every push triggers an auto-version-bump.
+
 ## Overview
 
 The `design/` directory contains detailed design specifications that translate the System Architect's high-level architecture into implementable infrastructure, security, resilience, database, and monitoring blueprints. These documents are the primary output of the **System Designer** and serve as the bridge between architecture decisions and operational implementation.
@@ -103,3 +105,12 @@ Every design document in this directory **must** include:
   - A document is significantly restructured
   - Ownership or workflow changes
 -->
+
+---
+
+## Revision History
+
+| Version | Date       | Author              | Changes |
+|---------|------------|---------------------|---------|
+| 1.0     | [PLACEHOLDER] | System Designer  | Initial design directory overview. |
+| 1.1     | 2026-05-01 | System Designer + Architect | Added pointer to `design/AGENTS.md` and `/VERSIONING.md` at top. |

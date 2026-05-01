@@ -1,5 +1,7 @@
 # API Specifications Guide
 
+> **First action for the Architect:** open [`../AGENTS.md`](../AGENTS.md) and complete the Pre-Flight Acknowledgement before adding or modifying any OpenAPI spec. Per [`/VERSIONING.md`](../../VERSIONING.md), every push triggers an auto-version-bump; OpenAPI breaking changes additionally require a new ADR (gate ARC-G3).
+
 <!--
   PURPOSE: Define conventions, naming rules, and structure for all OpenAPI specification files
            in this directory. Includes a complete example skeleton and common shared schemas.

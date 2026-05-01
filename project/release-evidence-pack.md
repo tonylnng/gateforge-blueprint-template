@@ -13,13 +13,15 @@
   OWNER: System Architect
 -->
 
+> **🛑 STOP — Mandatory reading before assembling any release.** Read **[`project/AGENTS.md`](AGENTS.md)** and **[`/VERSIONING.md`](../VERSIONING.md)** first. Every release evidence pack must include a **Pre-Flight Acknowledgement** (§5) and a **Version-Bump Record** (§3 #13).
+
 | Field | Value |
 |---|---|
 | **Document ID** | `PRJ-RELEASE-EVIDENCE-001` |
-| **Version** | `0.1.0` |
+| **Version** | `0.2.0` |
 | **Status** | `Living Document` |
 | **Owner** | System Architect |
-| **Last Updated** | `[PLACEHOLDER — YYYY-MM-DD]` |
+| **Last Updated** | `2026-05-01` |
 
 ---
 
@@ -39,7 +41,8 @@ so that:
 
 | Version | Date | Author | Change Summary |
 |---|---|---|---|
-| 0.1.0 | [PLACEHOLDER] | System Architect | Initial evidence pack guidance |
+| 0.2.0 | 2026-05-01 | System Architect | Added Pre-Flight Acknowledgement requirement and Version-Bump Record (item #13) to evidence pack; aligned with ADR-005 / ADR-006. |
+| 0.1.0 | [PLACEHOLDER] | System Architect | Initial evidence pack guidance. |
 
 ---
 
@@ -67,6 +70,9 @@ Every release evidence pack contains:
 | 10 | Compliance Evidence (control IDs re-verified for this release) | Conditional | `project/compliance-controls.md` |
 | 11 | Healthcare Readiness Attestation (if applicable) | Conditional | `operations/healthcare-readiness.md` |
 | 12 | Security Scan Results (SAST, dependency, container) | ✅ | `qa/reports/` or external scanner report link |
+| 13 | Version-Bump Record (`VERSION` value, tag, workflow run, bump type) | ✅ | `/VERSION`, `CHANGELOG.md`, GitHub Actions run for `version-bump.yml` |
+| 14 | Pre-Flight Acknowledgement (per-role AGENTS.md read with version) | ✅ | §5 of this document; PR description |
+| 15 | QA Gate Matrix (QA-G1…QA-G8 explicit pass/fail — includes E2E QA-G3) | ✅ | `qa/reports/TEST-REPORT-ITER-*.md` and `qa/AGENTS.md` |
 
 ### 3.1 Conditional Items
 
@@ -90,6 +96,9 @@ Every release evidence pack contains:
 | Unresolved Defects | Every open P0 defect blocks release. Every open P1 defect requires Architect-signed risk acceptance in the release notes. |
 | ADRs | Any `High` impact ADR must be `Accepted` before release. |
 | Human Approvals | Minimum: QC sign-off + Architect sign-off + Operator sign-off. Add Compliance Lead sign-off when healthcare readiness applies. |
+| Version-Bump Record | `VERSION` value matches the latest `CHANGELOG.md` entry and the latest annotated git tag. The GitHub Actions `version-bump.yml` run for the release commit is **green**. Bump type recorded (MAJOR / MINOR / PATCH). |
+| Pre-Flight Acknowledgement | Every contributing role appears in the table with the AGENTS.md version they read. Missing rows fail `agent.preflight.present`. |
+| QA Gate Matrix | All eight named gates (QA-G1…QA-G8) report explicit pass / fail. “N/A” only with QC-Lead-initialled rationale. The E2E gate (QA-G3) is non-skippable. |
 | Rollback Plan | Must specify: trigger conditions, maximum data loss window, DB-migration reversal steps, feature-flag kill switch (if any). |
 | Security Scan | No Critical/High findings; Medium findings require documented acceptance. |
 
@@ -114,6 +123,47 @@ Every release evidence pack contains:
 | **Evidence Pack Compiled By** | [PLACEHOLDER — Agent name] |
 | **Compiled On** | [PLACEHOLDER — YYYY-MM-DD] |
 | **Admin Portal Badge Target** | `release.evidence.complete` |
+
+### Pre-Flight Acknowledgement
+
+<!-- Required. One row per contributing role. Author confirms they have read the
+     listed AGENTS.md at the listed version, before any change for this release. -->
+
+| Role | Agent / Author | AGENTS.md Read | Version Read | Date |
+|---|---|---|---|---|
+| System Architect | [PLACEHOLDER] | `project/AGENTS.md` | v[PLACEHOLDER] | [YYYY-MM-DD] |
+| QC Lead | [PLACEHOLDER] | `qa/AGENTS.md` | v[PLACEHOLDER] | [YYYY-MM-DD] |
+| Operator | [PLACEHOLDER] | `operations/AGENTS.md` | v[PLACEHOLDER] | [YYYY-MM-DD] |
+| Developers | [PLACEHOLDER] | `development/AGENTS.md` | v[PLACEHOLDER] | [YYYY-MM-DD] |
+| Designer (if touched) | [PLACEHOLDER] | `design/AGENTS.md` | v[PLACEHOLDER] | [YYYY-MM-DD] |
+
+### Version-Bump Record
+
+<!-- Required. Confirms the auto-bump workflow ran and the result matches
+     /VERSION, the latest CHANGELOG entry, and the git tag for this release. -->
+
+| Field | Value |
+|---|---|
+| `/VERSION` value at release commit | [PLACEHOLDER — X.Y.Z] |
+| Latest `CHANGELOG.md` heading version | [PLACEHOLDER — X.Y.Z] |
+| Annotated git tag | `v[PLACEHOLDER]` |
+| Bump type for this release | MAJOR / MINOR / PATCH |
+| Bump trigger | auto (commit-type) / human (`Version-Bump: major` trailer) |
+| `version-bump.yml` workflow run URL | [PLACEHOLDER] |
+| Workflow run status | green |
+
+### QA Gate Matrix (all eight gates required)
+
+| Gate | Description | Result |
+|---|---|---|
+| QA-G1 | Unit tests | pass / fail / N/A (rationale) |
+| QA-G2 | Integration tests | pass / fail / N/A (rationale) |
+| QA-G3 | **E2E tests (non-skippable)** | pass / fail / N/A (rationale) |
+| QA-G4 | Performance tests vs NFRs | pass / fail / N/A (rationale) |
+| QA-G5 | Security tests | pass / fail / N/A (rationale) |
+| QA-G6 | TC → FR traceability | pass / fail |
+| QA-G7 | Defects filed for failures | pass / fail |
+| QA-G8 | `qa/metrics.md` updated | pass / fail |
 
 ### Linked Requirements (FRs shipped)
 
@@ -220,6 +270,9 @@ Every release evidence pack contains:
 - [ ] Security scan shows zero Critical/High findings.
 - [ ] Compliance controls re-verified (when release touches controlled areas).
 - [ ] Healthcare readiness attestation included (when in PHI scope).
+- [ ] Pre-Flight Acknowledgement table populated for all contributing roles.
+- [ ] Version-Bump Record present and consistent (`VERSION` = latest CHANGELOG = git tag, workflow green).
+- [ ] QA Gate Matrix shows explicit result for **every** gate QA-G1…QA-G8 (E2E QA-G3 included).
 
 ---
 

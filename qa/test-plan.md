@@ -14,12 +14,14 @@
 | Field          | Value                                    |
 |----------------|------------------------------------------|
 | Document ID    | QA-TP-001                                |
-| Version        | 1.0                                      |
+| Version        | 1.1                                      |
 | Owner          | QC Agents (VM-4, MiniMax 2.7)           |
 | Reviewer       | System Architect                         |
-| Status         | [PLACEHOLDER]                            |
-| Last Updated   | [PLACEHOLDER]                            |
+| Status         | Approved                                 |
+| Last Updated   | 2026-05-01                               |
 | IEEE 829 Ref   | IEEE 829-2008 — Test Plan                |
+
+> **Mandatory entry point:** Before producing or updating ANY test artifact, every QC Agent must read [`qa/AGENTS.md`](AGENTS.md) and include the Pre-Flight Acknowledgement at the top of every test report. The E2E execution gate (QA-G3) is non-negotiable — see §7 below.
 
 ---
 
@@ -216,6 +218,12 @@ This plan covers testing for the following system boundaries:
 | Performance  | Staging env at production-scale. Monitoring dashboards operational.   | All NFR performance targets met. No regressions > 10% from baseline.   | Environment resource constraints. Unreliable metrics.   |
 | Security     | Full system deployed. Latest dependency scan completed.              | Zero high/critical vulnerabilities. OWASP Top 10 scan clean.           | New critical CVE discovered requiring immediate patching.|
 
+> **⚠ Mandatory E2E Execution Gate (QA-G3 in `qa/AGENTS.md`):** E2E tests MUST be executed for every iteration that touches a user-facing workflow. Skipping E2E is the failure mode this entire compliance regime exists to prevent. Valid waivers:
+> - The module has no UI or user-facing workflow (state the `MOD-XXX` ID).
+> - Architect waiver recorded in `project/decision-log.md` (cite the ADR-NNN).
+>
+> "Time pressure", "no environment", and "covered by integration tests" are NOT valid waivers. If staging is down, file `INC-NNN`, pause the release, and fix the environment.
+
 ---
 
 ## 8. Test Deliverables Checklist
@@ -235,6 +243,11 @@ This plan covers testing for the following system boundaries:
 | Iteration Test Reports               | `qa/reports/TEST-REPORT-ITER-*.md`   | [PLACEHOLDER]  |
 | Defect Reports                       | `qa/defects/DEF-*.md`               | [PLACEHOLDER]  |
 | QA Metrics Dashboard                 | `qa/metrics.md`                      | [PLACEHOLDER]  |
+
+Every test report MUST cite the source documents it followed, including this
+file and its version (e.g., "Executed per `qa/test-plan.md` v1.1 §4.3 E2E
+suite"). Reports without source-doc citations fail the
+`agent.doc-citation.present` Admin Portal check.
 
 ---
 
@@ -306,7 +319,7 @@ This plan covers testing for the following system boundaries:
 
 ## Revision History
 
-| Version | Date          | Author         | Changes                    |
-|---------|---------------|----------------|----------------------------|
-| 1.0     | [PLACEHOLDER] | [PLACEHOLDER]  | Initial test plan created  |
-| [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER]        |
+| Version | Date          | Author              | Changes                                                                                          |
+|---------|---------------|---------------------|--------------------------------------------------------------------------------------------------|
+| 1.0     | [PLACEHOLDER] | [PLACEHOLDER]       | Initial test plan created                                                                         |
+| 1.1     | 2026-05-01    | QC Agents + Architect | Added mandatory E2E execution gate (QA-G3) call-out in §7; added doc-citation requirement in §8; added pointer to `qa/AGENTS.md` in metadata header. |
