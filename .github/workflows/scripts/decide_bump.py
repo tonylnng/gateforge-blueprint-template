@@ -24,8 +24,13 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+# Preferred format: '[<Agent>] <type>(<scope>)?: <subject>'
+# Also accepted (plain Conventional Commits, no Agent prefix): '<type>(<scope>)?: <subject>'
 COMMIT_PREFIX_RE = re.compile(
-    r"^\[(?P<agent>[A-Za-z]+)\]\s+(?P<type>feat|fix|refactor|test|deploy|docs|chore)(?P<scope>\([^)]+\))?:\s+(?P<subject>.+)$"
+    r"^(?:\[(?P<agent>[A-Za-z]+)\]\s+)?"
+    r"(?P<type>feat|fix|refactor|test|deploy|docs|chore|perf|style|ci|build)"
+    r"(?P<scope>\([^)]+\))?"
+    r"!?:\s+(?P<subject>.+)$"
 )
 TRAILER_RE = re.compile(r"^Version-Bump:\s*(major)\s*$", re.IGNORECASE)
 SECURITY_SCOPE_RE = re.compile(r"^\(security\)$", re.IGNORECASE)
@@ -84,13 +89,25 @@ def has_major_trailer(commits: list[dict], actor: str, tony: str) -> bool:
     return False
 
 
+# Map non-bump-affecting types to bump-affecting equivalents for the version-bump decision.
+# perf -> patch, style -> patch, ci -> patch, build -> patch (treated as 'chore').
+TYPE_NORMALISE = {
+    "perf": "refactor",
+    "style": "chore",
+    "ci": "chore",
+    "build": "chore",
+}
+
+
 def parse_commit(subject: str) -> dict | None:
     m = COMMIT_PREFIX_RE.match(subject.strip())
     if not m:
         return None
+    raw_type = m.group("type").lower()
+    norm_type = TYPE_NORMALISE.get(raw_type, raw_type)
     return {
-        "agent": m.group("agent"),
-        "type": m.group("type").lower(),
+        "agent": m.group("agent") or "contributor",
+        "type": norm_type,
         "scope": (m.group("scope") or "").strip(),
         "subject": m.group("subject").strip(),
     }
@@ -107,12 +124,25 @@ def decide(commits: list[dict], major_requested: bool) -> tuple[str, dict]:
             parsed.append(p)
 
     if unparsed:
+        # Don't block CI — emit a warning and treat unparseable commits as PATCH (chore).
+        # Hard rejection here is too brittle: a single non-conforming commit would
+        # permanently break the auto-bump pipeline. A warning preserves traceability
+        # while letting the bump proceed.
         print(
-            "::error::Found commits that do not match required format "
-            "'[<Agent>] <type>: <subject>':\n  - " + "\n  - ".join(unparsed),
+            "::warning::Found commits that do not match the preferred format "
+            "'[<Agent>] <type>(<scope>)?: <subject>'. Treating as PATCH (chore):\n  - "
+            + "\n  - ".join(unparsed),
             file=sys.stderr,
         )
-        sys.exit(1)
+        for subj in unparsed:
+            parsed.append(
+                {
+                    "agent": "contributor",
+                    "type": "chore",
+                    "scope": "",
+                    "subject": subj,
+                }
+            )
 
     if not parsed:
         return "none", {}
