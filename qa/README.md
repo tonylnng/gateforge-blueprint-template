@@ -34,7 +34,22 @@ All test documentation follows **IEEE 829** standards for test documentation str
 qa/
 ├── README.md                          ← This file (directory overview)
 ├── test-plan.md                       ← Master Test Plan (IEEE 829)
-├── metrics.md                         ← QA Metrics Dashboard (living document)
+├── ui-auto-test-plan.md               ← GateForge UI Auto-Test Standard, instantiated for this project (mandatory when SUT ships a web UI)
+├── intents.md                         ← AI explorer intents (one block per critical user journey) for Lane B
+├── playwright.config.ts               ← Lane A Playwright configuration (committed, not generated)
+├── openclaw.qa.yaml                   ← OpenClaw profile + agent config for QC
+├── docker-compose.qa.yml              ← Lane B headful Chrome + OpenClaw QA gateway
+├── metrics.md                         ← QA Metrics Dashboard (living document, includes UI Auto-Test KPIs)
+├── features/                          ← Gherkin .feature files (auth/, core-flows/, ai-agents/)
+├── steps/                             ← Step definitions for Gherkin
+├── pages/                             ← Page Object Model classes
+├── fixtures/                          ← Seed scripts, test data
+├── visual-baselines/                  ← PNG baselines for visual regression (committed)
+├── ai-explorer/
+│   ├── prompts/                       ← Prompt templates per intent class
+│   └── generated/                     ← AI-proposed tests (PR-reviewed before promotion)
+├── scripts/
+│   └── bootstrap-qa-runner.sh         ← Idempotent setup for the headless Ubuntu QC runner
 ├── test-cases/
 │   ├── README.md                      ← Test case format guide & examples
 │   ├── TC-<module>-<type>-NNN.md      ← Individual test case files
@@ -51,6 +66,8 @@ qa/
     ├── DEF-<NNN>.md                   ← Individual defect reports
     └── ...
 ```
+
+> **UI Auto-Test layout is mandatory.** Every project that ships a web UI must have the bolded files above. They are the project-level instantiation of the GateForge **UI Auto-Test Standard** (in the QC role guide of both [`gateforge-openclaw-configs`](https://github.com/tonylnng/gateforge-openclaw-configs) and [`gateforge-openclaw-single`](https://github.com/tonylnng/gateforge-openclaw-single)). Missing files force a `Rejected` verdict at the QC release gate.
 
 ---
 
@@ -108,6 +125,21 @@ flowchart TD
 
 ---
 
+## 4.1 UI Auto-Test (Lane A + Lane B) — mandatory cross-cutting layer
+
+When the System Under Test ships a web UI, the QC role applies the GateForge **UI Auto-Test Standard** on every iteration in addition to the workflow above. Two execution lanes run on the same headless Ubuntu QC runner:
+
+| Lane | Profile | Tool | Cadence | Gate impact |
+|---|---|---|---|---|
+| **Lane A — Deterministic** | `profile=openclaw` | OpenClaw + Playwright MCP | Every PR | Hard gate |
+| **Lane B — AI Exploratory** | `profile=user` (CDP) | OpenClaw + Chrome DevTools MCP, Claude Sonnet 4.6 / MiniMax 2.7 | Nightly + pre-release | Hard gate on new P0/P1 |
+
+The runner is Ubuntu Server 22.04+ LTS, no desktop. See `docker-compose.qa.yml` for the `chrome-headful` Lane B service and `scripts/bootstrap-qa-runner.sh` for first-time setup. The full operational playbook (Xvfb fallback, persisted profiles, networking, security, resource tiers) is in the QC role's `UI-AUTO-TEST-STANDARD.md` § 9 (Headless Ubuntu Operations).
+
+The **per-project test plan** lives in `qa/ui-auto-test-plan.md`. It instantiates the canonical standard for *this* project: lists the critical user journeys, the `data-testid` namespaces in scope, the visual-regression baselines, the a11y/perf budgets, and Lane B intent files.
+
+---
+
 ## 5. Quality Gate Thresholds
 
 <!-- 
@@ -131,6 +163,20 @@ flowchart TD
 | P1 (Major) defects open       | ≤ 2               |
 | Performance p95 latency       | Within NFR target |
 | Security vulnerabilities (High+) | 0              |
+
+### UI Auto-Test Gates (web UI projects only)
+
+| Gate ID | Metric | Threshold | Source |
+|---|---|---|---|
+| **G-UI-1** | Lane A (deterministic) pass rate on release commit | 100% | `qa/reports/laneA-*.junit.xml` |
+| **G-UI-2** | Visual regression — max pixel diff on critical pages | < 0.1% | `qa/visual-baselines/` |
+| **G-UI-3** | axe-core critical issues | 0 | `qa/reports/a11y-*.json` |
+| **G-UI-4** | Lighthouse performance score (mobile) | ≥ 80 | `qa/reports/lighthouse-*.json` |
+| **G-UI-5** | Lane B (AI exploratory) new P0/P1 in last 24 h | 0 | `qa/reports/laneB-*.json` |
+| **G-UI-6** | Intent coverage — % of `intents.md` entries with passing AI run | 100% | `qa/reports/intent-coverage.json` |
+| **G-UI-7** | Headless Compliance Checklist signed in release verdict | True | `qc/gates/<release>.md` |
+
+A `Rejected` verdict is mandatory if any G-UI-* gate fails. The QC report's `uiAutoTest` JSON block (see UI Auto-Test Standard § 6) is mandatory on release-tagged commits.
 
 ---
 

@@ -1,0 +1,77 @@
+# GateForge OpenClaw QA profile
+# Reference: GateForge UI Auto-Test Standard § 5, § 8.2
+#
+# This file configures the two browser profiles used by the QC role:
+#   - openclaw : Lane A deterministic Playwright runner (per-PR)
+#   - user     : Lane B AI exploratory runner (nightly + on-demand)
+#
+# Edit only via PR; the QC role does not regenerate this file at runtime.
+
+version: "1"
+
+defaults:
+  gatewayUrl: "http://localhost:18789"
+  reportDir: "./reports"
+  retries: 0
+  timeoutSeconds: 30
+
+profiles:
+  # -----------------------------------------------------------------
+  # Lane A — deterministic Playwright MCP, per-PR
+  # -----------------------------------------------------------------
+  openclaw:
+    description: "Lane A — deterministic regression"
+    transport: "playwright-mcp"
+    browser:
+      engine: "chromium"
+      headless: true
+      viewport: { width: 1280, height: 800 }
+      launchArgs:
+        - "--no-sandbox"
+        - "--disable-dev-shm-usage"
+        - "--disable-gpu"
+        - "--headless=new"
+    profileDir: "/var/lib/openclaw/profiles/qa-openclaw"
+    auth:
+      mode: "fresh"   # Lane A logs in via fixtures every run
+    intents: []        # Lane A is feature-driven, not intent-driven
+
+  # -----------------------------------------------------------------
+  # Lane B — AI exploratory via Chrome DevTools MCP, nightly
+  # -----------------------------------------------------------------
+  user:
+    description: "Lane B — AI exploratory (signed-in)"
+    transport: "chrome-devtools-mcp"
+    cdpEndpoint: "ws://chrome-headful:3000"  # mapped to 127.0.0.1:9222
+    profileDir: "/var/lib/openclaw/profiles/qa-user"
+    auth:
+      mode: "persisted"   # Reuse the storage state captured by fixtures/login.ts
+      storageState: "fixtures/auth.json"
+    intents:
+      file: "intents.md"
+      mode: "all"          # Lane B drives every intent block per nightly run
+
+agents:
+  # The QC-Explorer agent that drives Lane B.
+  qc-explorer:
+    profile: "user"
+    # Override per project: single-agent uses Claude, multi-agent uses MiniMax.
+    model: "${QC_EXPLORER_MODEL:-anthropic/claude-sonnet-4-6}"
+    systemPromptFile: "ai-explorer/prompts/system.md"
+    maxStepsPerIntent: 30
+    budget:
+      tokensPerRun: 2_000_000
+      usdPerRun: 5.00
+    reporter:
+      kind: "junit"
+      outputFile: "reports/laneB-junit.xml"
+
+reporting:
+  uploads:
+    - kind: "s3"
+      bucket: "${QA_REPORTS_BUCKET:-gateforge-qa-reports}"
+      prefix: "${PROJECT_CODENAME:-unspecified}/"
+  notifications:
+    onFail:
+      severityFloor: "P1"
+      channel: "telegram"

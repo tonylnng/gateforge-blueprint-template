@@ -1,0 +1,63 @@
+# GateForge Lane B headful Chrome stack
+# Reference: GateForge UI Auto-Test Standard § 9.4
+#
+# Runs on the QC runner host (Ubuntu Server 22.04+ LTS, no desktop).
+# Brings up:
+#   - chrome-headful : browserless/chrome with virtual display, exposes CDP
+#   - mailpit        : SMTP catcher used by AI-explorer for email-verify intents
+#
+# Idempotent: `docker compose -f qa/docker-compose.qa.yml up -d` is safe to re-run.
+
+version: "3.9"
+
+services:
+  chrome-headful:
+    image: browserless/chrome:latest
+    container_name: gf-qa-chrome-headful
+    restart: unless-stopped
+    shm_size: "2gb"
+    environment:
+      # browserless tuning — matches UI Auto-Test Standard § 9.4
+      MAX_CONCURRENT_SESSIONS: "5"
+      CONNECTION_TIMEOUT: "60000"
+      KEEP_ALIVE: "true"
+      ENABLE_DEBUGGER: "false"
+      ENABLE_CORS: "true"
+      ALLOW_FILE_PROTOCOL: "false"
+      EXIT_ON_HEALTH_FAILURE: "true"
+      # Chromium flags — required for headless Ubuntu Server.
+      CHROME_REFRESH_TIME: "3600000"
+      DEFAULT_LAUNCH_ARGS: |
+        ["--no-sandbox","--disable-dev-shm-usage","--disable-gpu","--headless=new","--window-size=1366,768"]
+    ports:
+      - "127.0.0.1:9222:3000"   # CDP only on localhost / Tailscale interface
+    volumes:
+      - chrome-profiles:/var/lib/openclaw/profiles
+      - ./reports:/reports
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: gf-qa-mailpit
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1025:1025"   # SMTP
+      - "127.0.0.1:8025:8025"   # Web UI / API
+    environment:
+      MP_MAX_MESSAGES: "5000"
+      MP_DATABASE: "/data/mailpit.db"
+    volumes:
+      - mailpit-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8025/api/v1/info"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  chrome-profiles:
+  mailpit-data:
