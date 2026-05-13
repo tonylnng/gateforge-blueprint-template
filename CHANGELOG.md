@@ -34,6 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.3] - 2026-05-13
+
+### Docs
+- [Architect] generalize requirement-source from 'Tony NG' to 'End-user'
+
+
+---
+
 ## [0.2.2] - 2026-05-12
 
 ### Chore
