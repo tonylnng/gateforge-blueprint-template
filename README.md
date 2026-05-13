@@ -12,7 +12,7 @@ This repository is the **single source of truth** for a GateForge project. It co
 
 **Key principle:** No agent operates from memory or assumption. Every decision, requirement, design choice, and test result is captured here in structured Markdown documents. If it's not in this repository, it doesn't exist.
 
-**Owner:** Tony NG  
+**Owner:** End-user  
 **Repository Version:** see `/VERSION` (single source of truth)  
 **Tech Stack:** TypeScript · React · NestJS · Docker · Redis · PostgreSQL · Kubernetes · React Native  
 **Standards:** IEEE 830 · ISO 25010 · C4 Model · OWASP · IEEE 829 · ISTQB · SRE · ITIL · SemVer
@@ -35,7 +35,7 @@ gateforge-blueprint/
 │   └── PULL_REQUEST_TEMPLATE.md       # Mandatory PR template (Pre-Flight Acknowledgement + version-bump declaration)
 ├── requirements/
 │   ├── AGENTS.md                      # MANDATORY entry point for the Architect when editing requirements/
-│   ├── user-requirements.md           # Raw user requirements captured from Tony (IEEE 830)
+│   ├── user-requirements.md           # Raw user requirements captured from the End-user (IEEE 830)
 │   ├── functional-requirements.md     # Decomposed functional requirements per module
 │   └── non-functional-requirements.md # Quality attributes and performance targets (ISO 25010)
 ├── architecture/
@@ -142,7 +142,7 @@ gateforge-blueprint/
 
 ```mermaid
 flowchart TD
-    A[Tony NG provides requirements] --> B[System Architect captures in user-requirements.md]
+    A[End-user provides requirements] --> B[System Architect captures in user-requirements.md]
     B --> C[Architect decomposes into functional-requirements.md]
     B --> D[Architect defines non-functional-requirements.md]
     C --> E[Architect creates technical-architecture.md]
@@ -161,7 +161,7 @@ flowchart TD
 
 ### Step-by-Step
 
-1. **Tony → Architect:** Tony provides business context, goals, and user stories. The Architect captures everything in `requirements/user-requirements.md`.
+1. **End-user → Architect:** The End-user provides business context, goals, and user stories. The Architect captures everything in `requirements/user-requirements.md`.
 2. **Architect decomposes:** The Architect breaks user stories into module-level functional requirements (`requirements/functional-requirements.md`) and defines quality targets (`requirements/non-functional-requirements.md`).
 3. **Architect designs architecture:** Using the C4 model, the Architect creates `architecture/technical-architecture.md`, `architecture/data-model.md`, and API specifications under `architecture/api-specifications/`.
 4. **Designer details design:** The System Designer reads architecture documents and produces detailed designs in `design/` — infrastructure, security, resilience, database optimization, and monitoring.
@@ -177,7 +177,7 @@ flowchart TD
 ### Starting a New Project
 
 1. **Clone this template** into a new repository for your project.
-2. **Architect fills requirements first** — start with `requirements/user-requirements.md` after Tony's briefing.
+2. **Architect fills requirements first** — start with `requirements/user-requirements.md` after the End-user's briefing.
 3. **Cascade through documents** in order: requirements → architecture → design → development → QA → operations.
 4. **Never skip a document.** Each downstream document depends on its upstream inputs.
 
@@ -185,7 +185,7 @@ flowchart TD
 
 | Agent | First Action | Read From | Write To |
 |-------|-------------|-----------|----------|
-| System Architect | Capture Tony's requirements | Tony's briefing | `requirements/`, `architecture/`, `project/` |
+| System Architect | Capture the End-user's requirements | End-user's briefing | `requirements/`, `architecture/`, `project/` |
 | System Designer | Read architecture docs | `requirements/`, `architecture/` | `design/` |
 | Developers | Read requirements + design | `requirements/`, `architecture/`, `design/` | `development/` |
 | QC Agents | Read functional requirements | `requirements/`, `development/` | `qa/` |
@@ -420,7 +420,7 @@ point to the exact state of the blueprint at any moment in time.
 
 | Segment | Controller | Trigger | Reset effect |
 |---|---|---|---|
-| **MAJOR** | **Tony NG** (human, explicit instruction only) | Tony decides the change is large enough | MINOR → 0, PATCH → 0 |
+| **MAJOR** | **End-user** (human, explicit instruction only) | The End-user decides the change is large enough | MINOR → 0, PATCH → 0 |
 | **MINOR** | **AI agent** (auto) | At least one `feat` commit in the push (or `feat` + `fix` mix) | PATCH → 0 |
 | **PATCH** | **AI agent** (auto) | Pure bug fixes / refactors / docs / chores | — |
 
@@ -431,7 +431,7 @@ point to the exact state of the blueprint at any moment in time.
 - The `VERSION` file is written **only** by the workflow. Manual edits are
   rejected by CI.
 - A MAJOR bump requires the trailer `Version-Bump: major` on the last commit,
-  authored by Tony.
+  authored by the End-user.
 - Full spec: [`VERSIONING.md`](VERSIONING.md). ADR record: [`project/decision-log.md`](project/decision-log.md) ADR-005.
 
 ---

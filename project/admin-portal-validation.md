@@ -156,7 +156,7 @@ Orphans and dangling links fail `blueprint.traceability.completeness`.
 
 <!--
   AGENT INSTRUCTION: These four rules enforce the four-layer agent-compliance pattern
-  agreed by the repo owner (Tony NG, 2026-05-01). They run on every push.
+  agreed by the End-user (2026-05-01). They run on every push.
   Read /VERSIONING.md and the per-role AGENTS.md before editing.
 -->
 
@@ -172,7 +172,7 @@ checks above:
 
 **Implementation notes:**
 
-- `versioning.semver.compliance` is the gate behind every push, including documentation-only commits, per the repo owner's policy.
+- `versioning.semver.compliance` is the gate behind every push, including documentation-only commits, per the End-user's policy.
 - `agent.preflight.present` requires the **exact** Pre-Flight template defined in `§3` of every per-role `AGENTS.md` file.
 - The `agent.test-coverage.gates` rule is **non-bypassable** — a missing gate row counts as a failure, not as “not applicable”. Use “N/A with rationale” if a gate truly does not apply, and the QC Lead must initial it.
 

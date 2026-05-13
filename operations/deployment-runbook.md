@@ -180,7 +180,7 @@ Complete **all** items before proceeding to deployment. Record pass/fail in the 
 | Approver | Approval Status | Date |
 |---|---|---|
 | System Architect | ☐ Approved | [PLACEHOLDER] |
-| Project Owner (Tony NG) | ☐ Approved | [PLACEHOLDER] |
+| Project Owner (End-user) | ☐ Approved | [PLACEHOLDER] |
 
 > **⚠ DO NOT PROCEED** without both approvals recorded above.
 

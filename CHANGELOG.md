@@ -53,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-05-01
 
 ### Added
-- **Versioning policy** ([`VERSIONING.md`](VERSIONING.md)) — every change destined for any environment must be pushed to GitHub first; MAJOR is human-controlled (Tony NG only), MINOR and PATCH are auto-incremented by the AI agent based on commit types.
+- **Versioning policy** ([`VERSIONING.md`](VERSIONING.md)) — every change destined for any environment must be pushed to GitHub first; MAJOR is human-controlled (End-user only), MINOR and PATCH are auto-incremented by the AI agent based on commit types.
 - **Root `VERSION` file** — single source of truth for the current repository version, written only by the auto-bump CI.
 - **Auto-bump CI workflow** (`.github/workflows/version-bump.yml`) — runs on every push to every branch (including doc-only pushes), parses commit messages, updates `VERSION` and `CHANGELOG.md`, creates an annotated git tag.
 - **Pull request template** (`.github/PULL_REQUEST_TEMPLATE.md`) — mandatory Pre-Flight Acknowledgement, change-type radio, expected version-bump declaration.

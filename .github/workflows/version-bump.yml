@@ -3,7 +3,7 @@ name: Version Bump
 # Auto-increments the project version on every push, per VERSIONING.md.
 # - PATCH: pure bug fixes / docs / chores
 # - MINOR: any 'feat' commit in the push (or feat + fix mix)
-# - MAJOR: only when a commit trailer 'Version-Bump: major' is present AND the author is Tony
+# - MAJOR: only when a commit trailer 'Version-Bump: major' is present AND the author matches the End-user's GitHub login
 #
 # This workflow is the SOLE writer of the VERSION file. Manual edits to VERSION
 # are rejected by the validation step.
@@ -45,17 +45,17 @@ jobs:
         id: bump
         env:
           GH_AUTHOR_LOGIN: ${{ github.actor }}
-          # Tony's GitHub login — the only identity allowed to trigger a MAJOR bump.
-          TONY_LOGIN: tonylnng
+          # End-user's GitHub login — the only identity allowed to trigger a MAJOR bump.
+          RELEASE_OWNER_LOGIN: tonylnng
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
         run: |
           set -euo pipefail
           python3 .github/workflows/scripts/decide_bump.py \
-            --before "$BEFORE_SHA" \
-            --after  "$AFTER_SHA"  \
-            --actor  "$GH_AUTHOR_LOGIN" \
-            --tony   "$TONY_LOGIN" \
+            --before        "$BEFORE_SHA" \
+            --after         "$AFTER_SHA"  \
+            --actor         "$GH_AUTHOR_LOGIN" \
+            --release-owner "$RELEASE_OWNER_LOGIN" \
             >> "$GITHUB_OUTPUT"
 
       - name: Validate VERSION file is unchanged by humans

@@ -15,7 +15,7 @@
 | **Status** | `Approved` |
 | **Owner** | System Architect |
 | **Last Updated** | 2026-05-01 |
-| **Approved By** | Tony NG |
+| **Approved By** | End-user |
 
 ---
 
@@ -50,12 +50,12 @@ prefix `v`, e.g. `1.4.7`). Git tags use the prefix (e.g. `v1.4.7`).
 
 | Segment | Controller | Trigger | Effect on Other Segments |
 |---|---|---|---|
-| **MAJOR** | **Human (Tony NG)** — explicit instruction only | Tony decides the change is large enough to warrant a major bump (breaking change, architecture pivot, major feature line) | MINOR → 0, PATCH → 0 |
+| **MAJOR** | **Human (End-user)** — explicit instruction only | End-user decides the change is large enough to warrant a major bump (breaking change, architecture pivot, major feature line) | MINOR → 0, PATCH → 0 |
 | **MINOR** | **AI Agent — automatic** | Push contains at least one new feature, OR a mix of features + fixes | PATCH → 0 |
 | **PATCH** | **AI Agent — automatic** | Push contains only bug fixes or issue fixes (no features) | — |
 
 **Critical rule:** MAJOR is **never** auto-incremented. Even if the AI agent
-believes a change is large, it must wait for Tony's explicit instruction. The
+believes a change is large, it must wait for the End-user's explicit instruction. The
 auto-bump workflow refuses to bump MAJOR.
 
 ---
@@ -64,7 +64,7 @@ auto-bump workflow refuses to bump MAJOR.
 
 ```mermaid
 flowchart TD
-    A[Push received on any branch] --> B{Tony explicitly<br/>requested MAJOR bump?<br/>commit trailer:<br/>Version-Bump: major}
+    A[Push received on any branch] --> B{End-user explicitly<br/>requested MAJOR bump?<br/>commit trailer:<br/>Version-Bump: major}
     B -->|Yes| C[Bump MAJOR<br/>Reset MINOR=0, PATCH=0]
     B -->|No| D{Any commit in this push<br/>has a 'feat' type?}
     D -->|Yes| E[Bump MINOR<br/>Reset PATCH=0]
@@ -93,7 +93,7 @@ Mapping from commit `type` to version impact:
 
 | Commit `type` | Version Impact |
 |---|---|
-| `feat` | **MINOR** bump (or MAJOR if Tony's trailer present) |
+| `feat` | **MINOR** bump (or MAJOR if the End-user's trailer present) |
 | `fix` | **PATCH** bump (only if no `feat` in the same push) |
 | `refactor` | **PATCH** bump |
 | `test` | **PATCH** bump |
@@ -106,7 +106,7 @@ If a single push contains both `feat` and `fix` commits → **MINOR** wins
 
 ### 5.1 The `Version-Bump:` commit trailer (MAJOR override)
 
-To request a MAJOR bump, Tony adds this trailer to the **last commit** of the
+To request a MAJOR bump, the End-user adds this trailer to the **last commit** of the
 push:
 
 ```
@@ -114,7 +114,7 @@ Version-Bump: major
 ```
 
 The auto-bump workflow checks the commit log for this trailer. If found AND the
-push author matches Tony's GitHub identity, MAJOR is bumped. Any other identity
+push author matches the End-user's GitHub identity, MAJOR is bumped. Any other identity
 attempting this trailer is rejected with a CI failure.
 
 ---
@@ -192,7 +192,7 @@ Tags are immutable. The Architect may add release notes in
 | Pure feature | `1.2.3` | 2× `[Dev] feat:` | `1.3.0` |
 | Mixed | `1.2.3` | 1× `feat`, 1× `fix` | `1.3.0` |
 | Doc-only | `1.2.3` | 1× `[Architect] docs:` | `1.2.4` |
-| Tony's MAJOR | `1.2.3` | 1× `[Architect] feat:` with trailer `Version-Bump: major` | `2.0.0` |
+| End-user MAJOR | `1.2.3` | 1× `[Architect] feat:` with trailer `Version-Bump: major` | `2.0.0` |
 | Workflow self-write | `1.2.3` | only `VERSION` + `CHANGELOG.md` | `1.2.3` (no bump) |
 
 ---
@@ -202,7 +202,7 @@ Tags are immutable. The Architect may add release notes in
 | Situation | Agent Action |
 |---|---|
 | Commit message lacks `[<Agent>] <type>:` prefix | CI fails. Push is rejected. Agent must amend and re-push. |
-| `Version-Bump: major` trailer present but author is not Tony | CI fails with explicit message. |
+| `Version-Bump: major` trailer present but author is not the End-user | CI fails with explicit message. |
 | Multiple `Version-Bump:` trailers conflict | CI fails. |
 | Concurrent pushes race on `VERSION` | The workflow uses GitHub's concurrency group `version-bump-${{ github.ref }}` to serialize. |
 | Manual edit to `VERSION` outside the workflow | CI rejects the push. Agents MUST NOT edit `VERSION` by hand. |

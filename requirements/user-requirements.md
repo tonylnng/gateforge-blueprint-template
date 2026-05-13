@@ -2,17 +2,17 @@
 
 <!--
   STANDARD: IEEE 830 / ISO/IEC/IEEE 29148
-  PURPOSE: Capture raw user requirements directly from Tony NG's briefing.
+  PURPOSE: Capture raw user requirements directly from the End-user's briefing.
   OWNER: System Architect
   
   INSTRUCTIONS FOR THE ARCHITECT:
-  1. Conduct a requirements elicitation session with Tony.
+  1. Conduct a requirements elicitation session with the End-user.
   2. Fill every [PLACEHOLDER] section with concrete information.
   3. User stories must be atomic — one action per story.
   4. Every user story must have measurable acceptance criteria.
   5. Use Mermaid diagrams to visualize workflows and interactions.
   6. Update the Revision History table with every change.
-  7. Move Status to "In Review" when ready for Tony's validation.
+  7. Move Status to "In Review" when ready for the End-user's validation.
 -->
 
 ## Document Metadata
@@ -53,7 +53,7 @@
 
 | Stakeholder | Role | Interest | Influence | Contact Method |
 |------------|------|----------|-----------|----------------|
-| Tony NG | Product Owner | High | Decision-maker | Direct briefing |
+| End-user | Product Owner | High | Decision-maker | Direct briefing |
 | [PLACEHOLDER] | [PLACEHOLDER] | [High/Medium/Low] | [Decision-maker/Influencer/Observer] | [PLACEHOLDER] |
 
 ### 1.4 Scope
@@ -254,7 +254,7 @@ sequenceDiagram
 
 | # | Constraint | Type | Imposed By |
 |---|-----------|------|-----------|
-| 1 | [PLACEHOLDER — e.g., Must launch MVP within 12 weeks] | Schedule | Tony NG |
+| 1 | [PLACEHOLDER — e.g., Must launch MVP within 12 weeks] | Schedule | End-user |
 | 2 | [PLACEHOLDER — e.g., Must use PostgreSQL as primary database] | Technology | Architecture decision |
 | 3 | [PLACEHOLDER — e.g., Must comply with GDPR for EU users] | Regulatory | Legal requirement |
 | 4 | [PLACEHOLDER] | [Schedule/Budget/Technology/Regulatory/Resource] | [PLACEHOLDER] |

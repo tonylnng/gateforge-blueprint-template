@@ -51,7 +51,7 @@ Tick exactly **one** primary change type:
 
 If this PR mixes `feat` + `fix` commits → expect **MINOR** bump (PATCH resets to 0).
 
-**Major bump?** Only Tony NG may request a MAJOR bump, and only by adding the
+**Major bump?** Only the End-user may request a MAJOR bump, and only by adding the
 trailer `Version-Bump: major` to the final commit. Do NOT tick this section
 yourself unless instructed.
 

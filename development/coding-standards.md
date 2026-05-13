@@ -198,7 +198,7 @@ import { User } from './entities/user.entity';
 
 > **Notes:**
 > - Mixed `feat` + `fix` in one push → MINOR bump (PATCH resets to `0`).
-> - **MAJOR** is human-only — repo owner adds the `Version-Bump: major` commit trailer (see `/VERSIONING.md` §3).
+> - **MAJOR** is human-only — the End-user adds the `Version-Bump: major` commit trailer (see `/VERSIONING.md` §3).
 > - Add `[skip version-bump]` to a commit message ONLY when the workflow itself must not run (e.g. infrastructure-only repo automation).
 
 ### PR Checklist

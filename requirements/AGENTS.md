@@ -104,7 +104,7 @@ Use the prefix `[Architect]` and one of these types:
 Per [`/VERSIONING.md`](../VERSIONING.md):
 - A `feat` push triggers a **MINOR** bump.
 - Any other type triggers a **PATCH** bump.
-- A MAJOR bump requires Tony's `Version-Bump: major` trailer.
+- A MAJOR bump requires the End-user's `Version-Bump: major` trailer.
 
 ---
 

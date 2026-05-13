@@ -40,8 +40,8 @@
 | ADR-002 | 2026-03-10 | Database Selection | Need a relational database for structured data with strong ACID guarantees | Use PostgreSQL as the primary database | Industry standard, excellent TypeScript ORM support (Prisma), JSON column support, proven scalability | High | accepted | System Architect |
 | ADR-003 | 2026-03-12 | Authentication Strategy | Need secure, stateless authentication suitable for web and mobile clients | Use JWT with short-lived access tokens (15m) and long-lived refresh tokens (7d) stored in httpOnly cookies | Industry standard for SPAs, stateless reduces DB load, refresh tokens mitigate short access token risk | High | accepted | System Architect |
 | ADR-004 | 2026-03-15 | Real-time Communication | Need real-time notification delivery to connected clients | Use WebSocket (Socket.IO) over SSE | Bidirectional communication needed for future features, Socket.IO provides automatic reconnection and room support | Medium | accepted | System Architect |
-| ADR-005 | 2026-05-01 | Versioning Policy & Auto-Bump | Repo owner requires every push to bump `VERSION` automatically and tag a release in GitHub, including doc-only commits, so that history is fully traceable | Adopt semver `MAJOR.MINOR.PATCH`. **MAJOR** is human-only via `Version-Bump: major` commit trailer (author must be `tonylnng`). **MINOR / PATCH** auto-bumped by `.github/workflows/version-bump.yml` from Conventional-Commit types (`feat`→MINOR, `fix\|docs\|refactor\|test\|chore`→PATCH; mixed feat+fix→MINOR with PATCH reset). Workflow runs on every push, writes `VERSION`, prepends a CHANGELOG entry, creates a tag, and skips its own commit via `[skip version-bump]`. | Eliminates manual version drift; provides a single source of truth (`VERSION` + git tag); satisfies repo owner's auditability requirement | High | accepted | System Architect (proposed); Tony NG (approved) |
-| ADR-006 | 2026-05-01 | Agent Compliance Enforcement (four-layer pattern) | QC agents (and other roles) historically skipped sections of role-specific MD files (e.g., `qa/test-plan.md` E2E section). Need a way to make compliance unavoidable, not optional | Adopt a four-layer enforcement pattern: (1) per-role `AGENTS.md` as the mandatory entry point in every role-owned directory; (2) Pre-Flight Acknowledgement block at the top of every PR / release-evidence pack listing each AGENTS.md read with version; (3) doc-citation requirement on every behavioural change (`per <doc> v<X.Y> §N`); (4) Admin-Portal validation gates `agent.preflight.present`, `agent.doc-citation.present`, `agent.test-coverage.gates`, `versioning.semver.compliance`. Eight named QA gates in `qa/AGENTS.md` (QA-G1…QA-G8) make E2E (QA-G3) non-skippable. | Single mandatory entry point + machine-checkable evidence, addressing the QC E2E pain point directly | High | accepted | System Architect (proposed); Tony NG (approved) |
+| ADR-005 | 2026-05-01 | Versioning Policy & Auto-Bump | End-user requires every push to bump `VERSION` automatically and tag a release in GitHub, including doc-only commits, so that history is fully traceable | Adopt semver `MAJOR.MINOR.PATCH`. **MAJOR** is human-only via `Version-Bump: major` commit trailer (author must match the End-user's GitHub login, configured via `TONY_LOGIN` env var in the workflow). **MINOR / PATCH** auto-bumped by `.github/workflows/version-bump.yml` from Conventional-Commit types (`feat`→MINOR, `fix\|docs\|refactor\|test\|chore`→PATCH; mixed feat+fix→MINOR with PATCH reset). Workflow runs on every push, writes `VERSION`, prepends a CHANGELOG entry, creates a tag, and skips its own commit via `[skip version-bump]`. | Eliminates manual version drift; provides a single source of truth (`VERSION` + git tag); satisfies End-user's auditability requirement | High | accepted | System Architect (proposed); End-user (approved) |
+| ADR-006 | 2026-05-01 | Agent Compliance Enforcement (four-layer pattern) | QC agents (and other roles) historically skipped sections of role-specific MD files (e.g., `qa/test-plan.md` E2E section). Need a way to make compliance unavoidable, not optional | Adopt a four-layer enforcement pattern: (1) per-role `AGENTS.md` as the mandatory entry point in every role-owned directory; (2) Pre-Flight Acknowledgement block at the top of every PR / release-evidence pack listing each AGENTS.md read with version; (3) doc-citation requirement on every behavioural change (`per <doc> v<X.Y> §N`); (4) Admin-Portal validation gates `agent.preflight.present`, `agent.doc-citation.present`, `agent.test-coverage.gates`, `versioning.semver.compliance`. Eight named QA gates in `qa/AGENTS.md` (QA-G1…QA-G8) make E2E (QA-G3) non-skippable. | Single mandatory entry point + machine-checkable evidence, addressing the QC E2E pain point directly | High | accepted | System Architect (proposed); End-user (approved) |
 
 <!-- AGENT INSTRUCTION: Add new rows above this comment. Use this template:
 
@@ -197,18 +197,18 @@ Use **WebSocket via Socket.IO** with the Redis adapter for horizontal scaling.
 
 **Date:** 2026-05-01
 **Status:** Accepted
-**Decided By:** System Architect (proposed) — Tony NG (approved)
+**Decided By:** System Architect (proposed) — End-user (approved)
 
 #### Context
 
 The GateForge Blueprint Repository did not have an enforced versioning convention.
-The repo owner (Tony NG) requires that **every push to the repository — including
+The End-user requires that **every push to the repository — including
 documentation-only commits — results in a traceable version bump and a corresponding
 GitHub tag**, so that any change can be located by version. The convention is
 `MAJOR.MINOR.PATCH` (e.g. `1.0.0`).
 
-The owner specified the bump rules:
-- **MAJOR** — human-only; the owner decides when application changes are large
+The End-user specified the bump rules:
+- **MAJOR** — human-only; the End-user decides when application changes are large
   enough to warrant it.
 - **MINOR** — auto, when a push contains feature upgrades. If a push contains both
   features and bug-fixes, MINOR still bumps and PATCH resets to `0`.
@@ -219,8 +219,8 @@ The owner specified the bump rules:
 | Option | Pros | Cons |
 |---|---|---|
 | **Real GitHub Actions workflow that reads commit messages and bumps `VERSION` + tags** | Fully enforced; no human bookkeeping; runs on every push automatically; integrates with PR template & validation | Requires write access for the workflow; needs care to avoid recursion (`[skip version-bump]` trailer) |
-| Manual `VERSION` + CHANGELOG updates per PR | Simple, no automation needed | Easy to forget; defeats the owner's stated goal of *guaranteed* traceability |
-| Release-Please / semantic-release third-party tool | Mature, widely used | Heavier dependency; less aligned with the simple `VERSION` file the owner requested |
+| Manual `VERSION` + CHANGELOG updates per PR | Simple, no automation needed | Easy to forget; defeats the End-user's stated goal of *guaranteed* traceability |
+| Release-Please / semantic-release third-party tool | Mature, widely used | Heavier dependency; less aligned with the simple `VERSION` file the End-user requested |
 
 #### Decision
 
@@ -245,7 +245,7 @@ Adopt the GitHub Actions workflow approach with the following implementation:
 
 - **Positive:** Every push produces a traceable version + tag automatically. The
   `VERSION` file gives a single source of truth. The CHANGELOG is always in sync.
-  Documentation-only commits are versioned, satisfying the owner's intent.
+  Documentation-only commits are versioned, satisfying the End-user's intent.
 - **Negative:** Many tags will be produced (one per push). Slight CI cost per push.
   Authors must use Conventional-Commit types or the workflow falls back to PATCH.
 - **Neutral:** Existing CHANGELOG history is preserved; the workflow appends new
@@ -257,11 +257,11 @@ Adopt the GitHub Actions workflow approach with the following implementation:
 
 **Date:** 2026-05-01
 **Status:** Accepted
-**Decided By:** System Architect (proposed) — Tony NG (approved)
+**Decided By:** System Architect (proposed) — End-user (approved)
 
 #### Context
 
-The repo owner reported a recurring pain point: **QC agents skipped the E2E
+The End-user reported a recurring pain point: **QC agents skipped the E2E
 testing section of `qa/test-plan.md`**, even though it is a published quality
 gate. The same risk applies to every role-specific MD file (architecture,
 operations runbook, etc.). Markdown alone is not enforceable.

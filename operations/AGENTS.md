@@ -68,7 +68,7 @@
   - [ ] OPS-G2  VERSION file matches the release tag
   - [ ] OPS-G3  Pre-deployment checklist (deployment-runbook §1) all green
   - [ ] OPS-G4  QC report for this release shows PROMOTE
-  - [ ] OPS-G5  Production deploys: Architect + Tony approvals recorded
+  - [ ] OPS-G5  Production deploys: Architect + End-user approvals recorded
   - [ ] OPS-G6  Rollback procedure verified executable in < 5 min
   - [ ] OPS-G7  Post-deploy verification (deployment-runbook §5) all green
   - [ ] OPS-G8  deployment-log.md and operation-log.md entries committed
@@ -86,7 +86,7 @@
 | OPS-G2 | The `VERSION` file content matches the git tag and the image tag being deployed | `/VERSIONING.md` |
 | OPS-G3 | Pre-deployment checklist (`deployment-runbook.md` §1) — every item ticked | `operations/deployment-runbook.md` |
 | OPS-G4 | QC test report for the release shows **PROMOTE** | `qa/README.md` §6 |
-| OPS-G5 | Production deploys require both Architect and Tony approvals recorded in deployment-runbook §4.1 | `operations/deployment-runbook.md` §4 |
+| OPS-G5 | Production deploys require both Architect and End-user approvals recorded in deployment-runbook §4.1 | `operations/deployment-runbook.md` §4 |
 | OPS-G6 | Rollback procedure verified executable within 5 minutes | `operations/deployment-runbook.md` §6 |
 | OPS-G7 | Post-deployment verification checklist all green | `operations/deployment-runbook.md` §5 |
 | OPS-G8 | `deployment-log.md` and `operation-log.md` entries committed in the same push | `operations/README.md` |

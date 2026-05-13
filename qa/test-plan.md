@@ -323,7 +323,7 @@ suite"). Reports without source-doc citations fail the
 |---------------------|--------------------|----------------|---------------------|
 | QC Lead             | [PLACEHOLDER]      | [PLACEHOLDER]  | [PLACEHOLDER]       |
 | System Architect    | [PLACEHOLDER]      | [PLACEHOLDER]  | [PLACEHOLDER]       |
-| Project Owner       | Tony NG             | [PLACEHOLDER]  | [PLACEHOLDER]       |
+| Project Owner       | End-user            | [PLACEHOLDER]  | [PLACEHOLDER]       |
 
 ---
 

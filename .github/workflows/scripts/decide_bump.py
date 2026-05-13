@@ -8,7 +8,7 @@ Outputs (to GITHUB_OUTPUT):
   changelog_sections: JSON {section_name: [bullet, ...]}
 
 Rules (see VERSIONING.md):
-  - 'Version-Bump: major' trailer + author == TONY_LOGIN  -> MAJOR
+  - 'Version-Bump: major' trailer + author == RELEASE_OWNER_LOGIN  -> MAJOR
   - any 'feat' commit                                     -> MINOR (resets PATCH=0)
   - otherwise (fix/refactor/test/deploy/docs/chore)       -> PATCH
   - bot's own commits are filtered out
@@ -79,8 +79,8 @@ def commits_in_range(before: str, after: str) -> list[dict]:
     return commits
 
 
-def has_major_trailer(commits: list[dict], actor: str, tony: str) -> bool:
-    if actor != tony:
+def has_major_trailer(commits: list[dict], actor: str, release_owner: str) -> bool:
+    if actor != release_owner:
         return False
     for c in commits:
         for line in c["body"].splitlines():
@@ -189,7 +189,12 @@ def main() -> None:
     ap.add_argument("--before", required=True)
     ap.add_argument("--after", required=True)
     ap.add_argument("--actor", required=True)
-    ap.add_argument("--tony", required=True)
+    ap.add_argument(
+        "--release-owner",
+        dest="release_owner",
+        required=True,
+        help="GitHub login of the End-user (release owner) who alone may trigger a MAJOR bump",
+    )
     args = ap.parse_args()
 
     commits = commits_in_range(args.before, args.after)
@@ -199,7 +204,7 @@ def main() -> None:
         print("changelog_sections={}")
         return
 
-    major_req = has_major_trailer(commits, args.actor, args.tony)
+    major_req = has_major_trailer(commits, args.actor, args.release_owner)
     bump_type, sections = decide(commits, major_req)
     if bump_type == "none":
         print("bump_type=none")
