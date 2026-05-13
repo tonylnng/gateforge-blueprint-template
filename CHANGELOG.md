@@ -34,6 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.4] - 2026-05-13
+
+### Chore
+- [Architect] ignore Python __pycache__ artifacts
+
+
+---
+
 ## [0.2.3] - 2026-05-13
 
 ### Docs
