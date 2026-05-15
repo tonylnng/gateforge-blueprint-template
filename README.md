@@ -172,6 +172,39 @@ flowchart TD
 
 ---
 
+## Mandatory Work Order (non-negotiable)
+
+<!--
+  AGENT INSTRUCTION: This is the most critical process rule in the entire repository.
+  It exists because agents repeatedly skip documentation and jump to code.
+  Violating this order triggers the Pre-Work Gate (see AGENTS.md in each directory)
+  and the CI workflow `.github/workflows/prework-gate.yml`.
+-->
+
+When given a development task, every agent MUST execute in this EXACT order:
+
+```
+1. CREATE GitHub Issues         ← work authorization; do this FIRST
+2. WRITE requirements           ← if new feature (user-requirements.md, functional-requirements.md)
+3. WRITE architecture/design    ← technical-architecture.md, data-model.md, design/*.md
+4. WRITE feature spec           ← docs/ specification document
+5. UPDATE project tracking      ← project/status.md, project/backlog.md, project/decision-log.md
+6. PUSH all docs to GitHub      ← this is your "permission to code"
+7. ── GATE: Pre-Work Gate ──    ← CI verifies steps 1-6 exist before allowing code
+8. IMPLEMENT code               ← now you may write implementation code
+9. WRITE tests                  ← unit, integration, E2E as applicable
+10. UPDATE status               ← project/status.md with completion
+```
+
+**Rules:**
+- You MUST NOT write implementation code until steps 1–6 are committed and pushed.
+- "Move fast" does NOT mean "skip docs." It means "do docs quickly, then code quickly."
+- If you are a single agent doing all roles, you still follow this order.
+- The Pre-Work Gate CI workflow (`.github/workflows/prework-gate.yml`) enforces this automatically.
+- Violation sets the Admin Portal badge to `validation: red` via `agent.prework-gate.violated`.
+
+---
+
 ## How to Use This Repository
 
 ### Starting a New Project

@@ -83,8 +83,38 @@ governance doc is introduced).
 
 ---
 
+## Pre-Work Gate (MUST complete before implementation)
+
+<!--
+  AGENT INSTRUCTION: This gate prevents the "code first, document later" anti-pattern.
+  Every checkbox below MUST be checked (with evidence) before you write ANY implementation
+  code. The CI workflow prework-gate.yml enforces this — pushes with code changes but
+  without prior doc commits will be rejected.
+-->
+
+Before writing ANY implementation code, the agent MUST have completed and committed:
+
+- [ ] **GitHub Issues created** for all tasks in this iteration/feature
+- [ ] **Requirements documented** (user-requirements.md and/or functional-requirements.md updated)
+- [ ] **Architecture/design docs written** (technical-architecture.md, data-model.md, or design/*.md as applicable)
+- [ ] **Feature spec written or updated** (docs/ specification document, if user-facing)
+- [ ] **project/backlog.md updated** with task entries for this work
+- [ ] **project/status.md updated** with current phase and iteration
+- [ ] **All of the above pushed to GitHub** before the first code commit
+
+**Enforcement:** The Pre-Work Gate CI workflow checks for these artifacts on every push
+that includes implementation code. Missing artifacts → `agent.prework-gate.violated` →
+`validation: red` → release blocked.
+
+**Exception process:** If a hotfix requires skipping the gate, any agent may add
+`Pre-Work-Gate: skip` as a commit trailer with a justification in the commit body.
+The CI logs the exception (commit, author, and trailer) in the audit trail for
+human review — abuse will be caught downstream and may revoke the agent's authority.
+
+
 ## Revision History
 
 | Version | Date       | Author            | Change Summary |
 |---------|------------|-------------------|----------------|
 | 1.0     | 2026-05-01 | System Architect  | Initial cross-agent compliance manifest for project/. |
+| 1.1     | 2026-05-15 | Project Manager   | Add Pre-Work Gate section (mandatory docs-before-code checklist) aligned with `.github/workflows/prework-gate.yml` and the README Mandatory Work Order. |

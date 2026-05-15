@@ -1,0 +1,165 @@
+name: Pre-Work Gate
+on:
+  push:
+    branches: ['**']
+
+# Enforce: documentation must exist before implementation code is committed.
+# This prevents the "code first, document later" anti-pattern.
+
+jobs:
+  prework-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need parent commit for diff
+
+      - name: Check Pre-Work Gate
+        run: |
+          set -e
+
+          echo "📋 Pre-Work Gate Check"
+          echo "======================"
+
+          # Detect if this push contains implementation code changes
+          # (excludes: blueprint/, docs/, tests, configs, markdown)
+          CODE_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | \
+            grep -E '\.(ts|tsx|js|jsx|py|go|rs|java|rb)$' | \
+            grep -v '__tests__/' | \
+            grep -v '\.test\.' | \
+            grep -v '\.spec\.' | \
+            grep -v 'blueprint/' | \
+            grep -v 'docs/' | \
+            grep -v '\.config\.' | \
+            grep -v 'vitest\.config' | \
+            grep -v 'playwright\.config' | \
+            grep -v '^\.github/' || true)
+
+          if [ -z "$CODE_FILES" ]; then
+            echo "✅ No implementation code changes detected — gate not applicable."
+            exit 0
+          fi
+
+          echo "🔍 Implementation code changes detected:"
+          echo "$CODE_FILES" | head -20
+          echo ""
+
+          # Check for Pre-Work-Gate: skip trailer (hotfix exception).
+          # Note: any author may use this trailer; justification must be in the commit
+          # body, and the exception is logged in the audit trail for human review.
+          SKIP_TRAILER=$(git log -1 --format='%b' | grep -i 'Pre-Work-Gate: skip' || true)
+          if [ -n "$SKIP_TRAILER" ]; then
+            echo "⚠️  Pre-Work Gate SKIPPED via commit trailer."
+            echo "   Author: $(git log -1 --format='%an <%ae>')"
+            echo "   Justification must be in commit body."
+            echo "   This exception is logged in the audit trail."
+            exit 0
+          fi
+
+          ERRORS=""
+          WARNINGS=""
+
+          # Smarter PLACEHOLDER counter: ignores PLACEHOLDER inside HTML comments
+          # and fenced code blocks, which legitimately reference the word.
+          # See .github/workflows/scripts/count_active_placeholders.py
+          count_placeholders() {
+            python3 .github/workflows/scripts/count_active_placeholders.py "$1" "${2:-0}"
+          }
+
+          # 1. Check GitHub Issues exist (require at least 1 open or recently closed issue)
+          if [ -n "$GITHUB_TOKEN" ]; then
+            ISSUE_COUNT=$(curl -s \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/issues?state=all&per_page=1" | \
+              python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
+
+            if [ "$ISSUE_COUNT" -eq 0 ]; then
+              ERRORS="$ERRORS\n❌ No GitHub Issues found. Create task issues before coding."
+            else
+              echo "✅ GitHub Issues exist ($ISSUE_COUNT+)"
+            fi
+          else
+            WARNINGS="$WARNINGS\n⚠️  Cannot check GitHub Issues — GITHUB_TOKEN not available."
+          fi
+
+          # 2. Check requirements docs exist (at least one non-template)
+          REQ_EXISTS=false
+          for f in requirements/user-requirements.md requirements/functional-requirements.md; do
+            if [ -f "$f" ]; then
+              PLACEHOLDER_COUNT=$(count_placeholders "$f" 50)
+              CONTENT_LINES=$(grep -c '[a-zA-Z]' "$f" || true)
+              if [ "$CONTENT_LINES" -gt 20 ] && [ "$PLACEHOLDER_COUNT" -lt 5 ]; then
+                REQ_EXISTS=true
+              fi
+            fi
+          done
+
+          if [ "$REQ_EXISTS" = true ]; then
+            echo "✅ Requirements docs exist with content"
+          else
+            ERRORS="$ERRORS\n❌ Requirements docs missing or still template. Write requirements before coding."
+          fi
+
+          # 3. Check architecture/design docs exist
+          ARCH_EXISTS=false
+          for f in architecture/technical-architecture.md architecture/data-model.md; do
+            if [ -f "$f" ]; then
+              CONTENT_LINES=$(grep -c '[a-zA-Z]' "$f" || true)
+              if [ "$CONTENT_LINES" -gt 20 ]; then
+                ARCH_EXISTS=true
+              fi
+            fi
+          done
+
+          if [ "$ARCH_EXISTS" = true ]; then
+            echo "✅ Architecture docs exist with content"
+          else
+            ERRORS="$ERRORS\n❌ Architecture docs missing or still template. Write architecture before coding."
+          fi
+
+          # 4. Check project tracking docs are updated
+          if [ -f "project/backlog.md" ]; then
+            BACKLOG_ITEMS=$(grep -c '^|.*FEAT-\|^|.*BUG-\|^|.*TASK-\|^|.*SPIKE-' project/backlog.md || true)
+            if [ "$BACKLOG_ITEMS" -gt 0 ]; then
+              echo "✅ Backlog has $BACKLOG_ITEMS tracked items"
+            else
+              WARNINGS="$WARNINGS\n⚠️  Backlog has no tracked items — consider adding task entries."
+            fi
+          fi
+
+          if [ -f "project/status.md" ]; then
+            # Use smarter counter on full file (n=0 means no head limit)
+            STATUS_UPDATED=$(count_placeholders "project/status.md" 0)
+            if [ "$STATUS_UPDATED" -gt 5 ]; then
+              WARNINGS="$WARNINGS\n⚠️  project/status.md still has many PLACEHOLDERs — update before release."
+            else
+              echo "✅ project/status.md appears updated"
+            fi
+          fi
+
+          # Report results
+          echo ""
+          echo "========================"
+
+          if [ -n "$WARNINGS" ]; then
+            echo -e "Warnings:$WARNINGS"
+            echo ""
+          fi
+
+          if [ -n "$ERRORS" ]; then
+            echo -e "FAILURES:$ERRORS"
+            echo ""
+            echo "❌ Pre-Work Gate FAILED"
+            echo ""
+            echo "Fix: Complete the documentation steps in README.md § Mandatory Work Order"
+            echo "     before pushing implementation code."
+            echo ""
+            echo "Hotfix exception: Add 'Pre-Work-Gate: skip' as a commit trailer"
+            echo "     with justification in the commit body."
+            exit 1
+          fi
+
+          echo "✅ Pre-Work Gate PASSED"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

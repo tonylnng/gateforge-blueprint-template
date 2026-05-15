@@ -1,11 +1,11 @@
 # Admin Portal Validation & Traceability
 
-> **🛑 STOP — Mandatory reading for every agent that opens a PR or release.** Read **[`project/AGENTS.md`](AGENTS.md)** and **[`/VERSIONING.md`](../VERSIONING.md)** before editing any blueprint document. Every PR that touches this repository must include a **Pre-Flight Acknowledgement** (see `§3.7`) — absence blocks the `agent.preflight.present` validation badge.
+> **🛑 STOP - Mandatory reading for every agent that opens a PR or release.** Read **[`project/AGENTS.md`](AGENTS.md)** and **[`/VERSIONING.md`](../VERSIONING.md)** before editing any blueprint document. Every PR that touches this repository must include a **Pre-Flight Acknowledgement** (see `§3.7`) - absence blocks the `agent.preflight.present` validation badge.
 
 <!--
   AGENT INSTRUCTION: This document defines how the GateForge Blueprint Repository is
   validated by the Admin Portal Control Tower. The Blueprint is the authoritative
-  "compliance ledger" — the Admin Portal is a READ-ONLY dashboard that indexes safe
+  "compliance ledger" - the Admin Portal is a READ-ONLY dashboard that indexes safe
   metadata from this repository to produce validation, traceability, and evidence
   views. No secrets, no PHI, and no production data are stored in this repository.
 
@@ -20,7 +20,7 @@
 | **Status** | `Draft` |
 | **Owner** | System Architect |
 | **Last Updated** | `2026-05-01` |
-| **Approved By** | `—` |
+| **Approved By** | `-` |
 
 ---
 
@@ -29,7 +29,7 @@
 The **Admin Portal Control Tower** is the governance dashboard that consumes this
 Blueprint Repository. It validates structural completeness, surfaces traceability
 gaps, and aggregates release and compliance evidence. It does **not** store source
-of truth — this repository is.
+of truth - this repository is.
 
 **Core principle:** The Blueprint is the **compliance ledger**. The Admin Portal
 reads validation and evidence from the Markdown artifacts in this repository.
@@ -129,7 +129,7 @@ IDs that do not match fail `blueprint.ids.regex`.
 
 | Directory | Primary Owner | Contributors | Admin Portal Check |
 |---|---|---|---|
-| `requirements/` | System Architect | — | `blueprint.ownership.requirements` |
+| `requirements/` | System Architect | - | `blueprint.ownership.requirements` |
 | `architecture/` | System Architect | System Designer | `blueprint.ownership.architecture` |
 | `design/` | System Designer | System Architect (review) | `blueprint.ownership.design` |
 | `development/` | Developers | System Architect (review) | `blueprint.ownership.development` |
@@ -169,12 +169,14 @@ checks above:
 | `agent.preflight.present` | Every PR description (and every release-evidence pack) starts with a **Pre-Flight Acknowledgement** block listing each role-relevant `AGENTS.md` plus the document version the author read. | Parses the PR body / evidence-pack section header `## Pre-Flight Acknowledgement` and validates the table shape. | Blocks merge. Author must add the block, re-run CI. |
 | `agent.doc-citation.present` | Deliverables that change behaviour (specs, test cases, runbooks, ADRs) cite the source document **and version** they comply with (e.g., `per qa/test-plan.md v1.1 §2.3`). | Greps for the citation pattern `per <relative-path> v<X.Y>(\.\d+)? §` in the changed files. | Marks the file `validation: amber`; high-impact ADRs are blocked outright. |
 | `agent.test-coverage.gates` | The QC report attached to a release records explicit pass/fail for **all** gates in `qa/AGENTS.md` §4 (QA-G1…QA-G8) including the **E2E gate (QA-G3)**. | Parses `qa/reports/TEST-REPORT-ITER-*.md` for the eight-gate matrix. | Blocks `release.evidence.complete` until QA-G3 (and all others) report a result. This rule directly addresses the prior pain point of QC skipping E2E. |
+| `agent.prework-gate.violated` | Implementation code MUST NOT be committed until documentation artifacts exist: requirements, architecture/design, feature spec, GitHub Issues, and project tracking updates. | CI workflow `prework-gate.yml` diffs each push for code files (`.ts`, `.tsx`, `.js`, etc. excluding tests/configs). If code is present, verifies: (1) ≥1 GitHub Issue exists, (2) requirements docs have content, (3) architecture docs have content, (4) backlog has tracked items. | Blocks the push. Agent must commit the missing documentation first, then re-push the code. Exception: `Pre-Work-Gate: skip` commit trailer (hotfix only, logged in audit trail). |
 
 **Implementation notes:**
 
 - `versioning.semver.compliance` is the gate behind every push, including documentation-only commits, per the End-user's policy.
 - `agent.preflight.present` requires the **exact** Pre-Flight template defined in `§3` of every per-role `AGENTS.md` file.
-- The `agent.test-coverage.gates` rule is **non-bypassable** — a missing gate row counts as a failure, not as “not applicable”. Use “N/A with rationale” if a gate truly does not apply, and the QC Lead must initial it.
+- The `agent.test-coverage.gates` rule is **non-bypassable** — a missing gate row counts as a failure, not as "not applicable". Use "N/A with rationale" if a gate truly does not apply, and the QC Lead must initial it.
+- The `agent.prework-gate.violated` rule enforces the Mandatory Work Order (see `README.md` § Mandatory Work Order). It directly addresses the observed anti-pattern where agents skip documentation and jump to code, then backfill docs later or never.
 
 ---
 
@@ -191,9 +193,9 @@ User Story (US)
    └── Functional Requirement (FR)
           └── Test Case (TC)
                  └── Defect (DEF, if any)
-                        └── Release (RELEASE-vX.Y.Z) — ships the fix
-                               └── ADR — if the fix required a decision
-                                      └── Incident (INC) — if the defect escaped to prod
+                        └── Release (RELEASE-vX.Y.Z) - ships the fix
+                               └── ADR - if the fix required a decision
+                                      └── Incident (INC) - if the defect escaped to prod
 ```
 
 ### 4.1 Link Direction
@@ -211,12 +213,12 @@ User Story (US)
 
 | Artifact | Must Link Up To | Must Link Down To |
 |---|---|---|
-| User Story | — | ≥ 1 FR |
+| User Story | - | ≥ 1 FR |
 | Functional Requirement | 1 US | ≥ 1 TC (or `non-testable` tag) |
 | Test Case | 1+ FR | Defects (as discovered) |
 | Defect | 1 TC | 1 Release (when fixed) |
 | Release | Defects closed, FRs shipped | ADRs invoked, Evidence Pack |
-| Incident | — | Root-cause ADR + corrective DEF/FR |
+| Incident | - | Root-cause ADR + corrective DEF/FR |
 | ADR | Triggering US/FR/INC | Releases where enacted |
 
 ---
@@ -300,14 +302,15 @@ The Admin Portal surfaces one of:
 - [ ] `/VERSION` file exists, matches semver, and matches the latest `CHANGELOG.md` entry (`versioning.semver.compliance`).
 - [ ] PR description includes a Pre-Flight Acknowledgement block (`agent.preflight.present`).
 - [ ] Every behavioural change cites its source doc + version (`agent.doc-citation.present`).
-- [ ] QC report records explicit pass/fail for **every** gate QA-G1…QA-G8, including the E2E gate QA-G3 (`agent.test-coverage.gates`).
+- [ ] QC report records explicit pass/fail for **every** gate QA-G1...QA-G8, including the E2E gate QA-G3 (`agent.test-coverage.gates`).
+- [ ] No implementation code was committed before documentation artifacts (requirements, architecture, design, feature spec, GitHub Issues, project tracking) — verified by `prework-gate.yml` (`agent.prework-gate.violated`).
 
 ---
 
 ## 7. Cross-References
 
-- [`README.md`](../README.md) — Master repository guide.
-- [`project/compliance-controls.md`](compliance-controls.md) — Control catalog.
-- [`project/release-evidence-pack.md`](release-evidence-pack.md) — Per-release evidence guidance.
-- [`operations/audit-evidence.md`](../operations/audit-evidence.md) — Audit log export and retention.
-- [`operations/healthcare-readiness.md`](../operations/healthcare-readiness.md) — Healthcare readiness overlay.
+- [`README.md`](../README.md) - Master repository guide.
+- [`project/compliance-controls.md`](compliance-controls.md) - Control catalog.
+- [`project/release-evidence-pack.md`](release-evidence-pack.md) - Per-release evidence guidance.
+- [`operations/audit-evidence.md`](../operations/audit-evidence.md) - Audit log export and retention.
+- [`operations/healthcare-readiness.md`](../operations/healthcare-readiness.md) - Healthcare readiness overlay.
