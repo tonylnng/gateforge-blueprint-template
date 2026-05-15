@@ -34,6 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2026-05-15
+
+### Added
+- [Architect] add Pre-Work Gate enforcement — docs before code
+
+
+---
+
 ## [0.2.4] - 2026-05-13
 
 ### Chore
