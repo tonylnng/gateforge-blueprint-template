@@ -39,28 +39,36 @@ All design documents follow GateForge template conventions: metadata tables, Mer
 
 ## Workflow
 
-```
-1. Architect dispatches design task
-   └─ Provides: requirements context, architecture decisions, constraints
+<!--
+  Purpose: End-to-end flow from design task dispatch to downstream consumption.
+  Audience: Architect / System Designer / Developer / Operator / QC
+  Last reviewed: 2026-05-16 by Architect
+-->
 
-2. System Designer reads inputs
-   └─ requirements/*.md — functional and non-functional requirements
-   └─ architecture/*.md — system architecture, data model, API specs
-   └─ RESILIENCE-SECURITY-GUIDE.md — resilience and security patterns
+```mermaid
+%% Title: design/ Workflow — from task dispatch to downstream consumption
+%% Type:  flowchart
+flowchart TD
+    arch["🏗️ System Architect<br/>dispatches design task"]
+    inputs[/"📖 Inputs:<br/>requirements/*.md<br/>architecture/*.md<br/>RESILIENCE-SECURITY-GUIDE.md"/]
+    designer["🎨 System Designer (VM-2)<br/>produces design document"]
+    doc["📄 Design document<br/>(PLACEHOLDERs filled, Mermaid diagrams,<br/>rollback strategy, security assessment)"]
+    review["🏗️ Architect review<br/>via metadata table status field"]
 
-3. System Designer produces design document
-   └─ Fills in all [PLACEHOLDER] sections
-   └─ Includes Mermaid diagrams, example table rows, rollback strategy
-   └─ Ensures security assessment section is complete
+    subgraph "Downstream consumers"
+        dev["💻 Developers<br/>development/ — implement"]
+        ops["⚙️ Operator<br/>operations/ — deploy / operate"]
+        qc["🔍 QC Agents<br/>qa/ — validate"]
+    end
 
-4. Architect reviews and approves
-   └─ Uses review checklist at the bottom of each document
-   └─ Requests revisions or approves via status field in metadata table
-
-5. Downstream consumers read approved designs
-   └─ Developers (development/) — implement according to design specs
-   └─ Operator (operations/) — deploy and operate according to infrastructure and monitoring design
-   └─ QC Agents (qa/) — validate implementations against design specifications
+    arch -->|"context + constraints"| designer
+    inputs -->|"reads"| designer
+    designer -->|"produces"| doc
+    doc -->|"submitted for"| review
+    review -.->|"revisions"| designer
+    review ==>|"approved"| dev
+    review ==>|"approved"| ops
+    review ==>|"approved"| qc
 ```
 
 ---
@@ -114,3 +122,4 @@ Every design document in this directory **must** include:
 |---------|------------|---------------------|---------|
 | 1.0     | [PLACEHOLDER] | System Designer  | Initial design directory overview. |
 | 1.1     | 2026-05-01 | System Designer + Architect | Added pointer to `design/AGENTS.md` and `/VERSIONING.md` at top. |
+| 1.2     | 2026-05-16 | System Architect | Replaced the ASCII workflow walkthrough with a Mermaid `flowchart` that visualizes the Architect → Designer → Review → Downstream (Developer / Operator / QC) handoff path. |

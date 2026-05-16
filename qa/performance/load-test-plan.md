@@ -181,6 +181,8 @@ RPS Target: [PLACEHOLDER] total
 ```
 
 ```mermaid
+%% Title: Baseline Load (Normal Traffic)
+%% Type:  xychart-beta
 xychart-beta
     title "Baseline Load Profile"
     x-axis "Time (minutes)" [0, 2, 4, 6, 8, 10, 12, 15]
@@ -204,6 +206,8 @@ RPS Target: [PLACEHOLDER] total
 ```
 
 ```mermaid
+%% Title: Peak Load (Expected Peak)
+%% Type:  xychart-beta
 xychart-beta
     title "Peak Load Profile"
     x-axis "Time (minutes)" [0, 3, 5, 8, 10, 12, 15, 20]

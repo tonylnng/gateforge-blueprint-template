@@ -62,6 +62,8 @@
 ### 2.1 JWT + Refresh Token Flow
 
 ```mermaid
+%% Title: JWT + Refresh Token Flow
+%% Type:  sequenceDiagram
 sequenceDiagram
     participant Client as Client (Browser/Mobile)
     participant API as API Gateway
@@ -121,6 +123,8 @@ sequenceDiagram
 ### 3.1 RBAC Role Hierarchy
 
 ```mermaid
+%% Title: RBAC Role Hierarchy
+%% Type:  graph
 graph TD
     SUPER_ADMIN["Super Admin"]
     ADMIN["Admin"]
@@ -256,6 +260,8 @@ spec:
 ### 5.1 Secrets Management Flow
 
 ```mermaid
+%% Title: Secrets Management Flow
+%% Type:  graph
 graph LR
     DEV[Developer] -->|"kubeseal encrypt"| SEALED[Sealed Secret<br/>YAML in Git]
     SEALED -->|"Git push"| REPO[Git Repository]
@@ -412,6 +418,8 @@ graph LR
 ### 11.1 Escalation Flow
 
 ```mermaid
+%% Title: Escalation Flow
+%% Type:  graph
 graph TD
     DETECT[Incident Detected<br/>Alert / Report / Scan] --> TRIAGE{Severity?}
     TRIAGE -->|Critical| SEV1[SEV-1: Immediate Response]

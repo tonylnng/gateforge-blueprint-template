@@ -34,6 +34,8 @@
 -->
 
 ```mermaid
+%% Title: Monitoring Architecture
+%% Type:  graph
 graph TB
     subgraph "Application Layer"
         API[API Gateway]

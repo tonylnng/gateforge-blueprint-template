@@ -21,6 +21,8 @@ Examples: `RELEASE-v0.1.0.md`, `RELEASE-v1.0.0.md`, `RELEASE-v1.1.0.md`
 ## Release Lifecycle
 
 ```mermaid
+%% Title: Release Lifecycle
+%% Type:  stateDiagram-v2
 stateDiagram-v2
     [*] --> Planning
     Planning --> Development

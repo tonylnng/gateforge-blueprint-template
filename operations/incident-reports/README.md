@@ -26,6 +26,8 @@ Examples: `INC-001.md`, `INC-002.md`, `INC-003.md`
 ## Incident Status Flow
 
 ```mermaid
+%% Title: Incident Status Flow
+%% Type:  stateDiagram-v2
 stateDiagram-v2
     [*] --> Open
     Open --> Investigating

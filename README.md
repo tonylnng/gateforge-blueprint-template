@@ -141,6 +141,8 @@ gateforge-blueprint/
 -->
 
 ```mermaid
+%% Title: Workflow: From Requirements to Delivery
+%% Type:  flowchart
 flowchart TD
     A[End-user provides requirements] --> B[System Architect captures in user-requirements.md]
     B --> C[Architect decomposes into functional-requirements.md]

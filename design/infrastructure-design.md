@@ -32,6 +32,8 @@
 -->
 
 ```mermaid
+%% Title: Kubernetes Cluster Architecture
+%% Type:  graph
 graph TB
     subgraph "Kubernetes Cluster"
         subgraph "ingress-ns"
@@ -199,6 +201,8 @@ CMD ["node", "dist/main.js"]
 ### Internal Service Communication
 
 ```mermaid
+%% Title: Internal Service Communication
+%% Type:  graph
 graph LR
     subgraph "gateforge-app namespace"
         API["API Gateway :8080"]
@@ -277,6 +281,8 @@ graph LR
 -->
 
 ```mermaid
+%% Title: CI/CD Pipeline Architecture
+%% Type:  graph
 graph LR
     subgraph "GitHub Actions Pipeline"
         A[Push / PR] --> B[Lint & Format]

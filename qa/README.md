@@ -95,6 +95,8 @@ qa/
 -->
 
 ```mermaid
+%% Title: Workflow
+%% Type:  flowchart
 flowchart TD
     A[Architect dispatches test task] --> B[QC Agent reads requirements + architecture]
     B --> C[QC Agent reads source code / API specs]
@@ -197,6 +199,8 @@ A `Rejected` verdict is mandatory if any G-UI-* gate fails. The QC report's `uiA
 ### Decision Flow
 
 ```mermaid
+%% Title: Decision Flow
+%% Type:  flowchart
 flowchart TD
     A[Test Report Submitted] --> B{Any P0 defects?}
     B -->|Yes| R[ROLLBACK]

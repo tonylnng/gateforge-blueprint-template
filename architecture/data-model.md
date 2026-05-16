@@ -31,13 +31,20 @@
 ## 1. Entity-Relationship Diagram
 
 <!--
-  Use Mermaid erDiagram syntax.
-  Include ALL entities from functional requirements.
-  Show cardinality (||--o{, ||--||, }o--o{, etc.)
-  Replace the placeholder example below with the actual project model.
+  Purpose: Canonical entity-relationship model for the project's persistent data.
+  Audience: Architect / Developer / DBA / QC
+  Last reviewed: 2026-05-16 by Architect
+
+  Authoring rules:
+   - Use Mermaid erDiagram syntax.
+   - Include ALL entities from functional requirements.
+   - Show cardinality (||--o{, ||--||, }o--o{, etc.)
+   - Replace the placeholder example below with the actual project model.
 -->
 
 ```mermaid
+%% Title: Entity-Relationship Diagram
+%% Type:  erDiagram
 erDiagram
     USER ||--o{ SESSION : "has"
     USER ||--o{ AUDIT_LOG : "generates"

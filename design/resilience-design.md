@@ -127,6 +127,8 @@
 -->
 
 ```mermaid
+%% Title: Failover Architecture
+%% Type:  graph
 graph TB
     CLIENT[Client Request] --> LB[Load Balancer / Ingress]
 
@@ -178,6 +180,8 @@ graph TB
 -->
 
 ```mermaid
+%% Title: PostgreSQL Replication Topology
+%% Type:  graph
 graph LR
     subgraph "PostgreSQL HA"
         PRIMARY[(Primary<br/>Read/Write<br/>:5432)]

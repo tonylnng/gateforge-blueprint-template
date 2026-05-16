@@ -16,7 +16,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `PRJ-ADMIN-PORTAL-001` |
-| **Version** | `0.2.0` |
+| **Version** | `0.2.1` |
 | **Status** | `Draft` |
 | **Owner** | System Architect |
 | **Last Updated** | `2026-05-01` |
@@ -43,6 +43,7 @@ Teams update the ledger; the portal reflects it.
 
 | Version | Date | Author | Change Summary |
 |---|---|---|---|
+| 0.2.1 | 2026-05-16 | System Architect | Converted the canonical traceability chain (US→FR→TC→DEF→RELEASE→ADR→INC) from an ASCII tree into a Mermaid `flowchart` with solid/dashed edges distinguishing mandatory vs. conditional links. |
 | 0.2.0 | 2026-05-01 | System Architect | Added §3.7 Agent-Compliance & Versioning checks (`versioning.semver.compliance`, `agent.preflight.present`, `agent.doc-citation.present`, `agent.test-coverage.gates`); added pre-flight banner; bumped to v0.2.0. |
 | 0.1.0 | [PLACEHOLDER] | System Architect | Initial draft. |
 
@@ -188,15 +189,34 @@ checks above:
   The Admin Portal parses these links to build the traceability graph.
 -->
 
+<!--
+  Purpose: Canonical traceability chain from end-user need to production incident.
+  Audience: Architect / QC / Project Manager
+  Last reviewed: 2026-05-16 by Architect
+-->
+
+```mermaid
+%% Title: Canonical Traceability Chain
+%% Type:  flowchart
+flowchart TD
+    US["User Story<br/>US-*"]
+    FR["Functional Requirement<br/>FR-*"]
+    TC["Test Case<br/>TC-*"]
+    DEF["Defect<br/>DEF-*"]
+    REL["Release<br/>RELEASE-vX.Y.Z"]
+    ADR["Architecture Decision<br/>ADR-*"]
+    INC["Incident<br/>INC-*"]
+
+    US -->|"derives"| FR
+    FR -->|"verified by"| TC
+    TC -.->|"may produce"| DEF
+    DEF -->|"fixed in"| REL
+    DEF -.->|"may require"| ADR
+    DEF -.->|"may escape as"| INC
 ```
-User Story (US)
-   └── Functional Requirement (FR)
-          └── Test Case (TC)
-                 └── Defect (DEF, if any)
-                        └── Release (RELEASE-vX.Y.Z) - ships the fix
-                               └── ADR - if the fix required a decision
-                                      └── Incident (INC) - if the defect escaped to prod
-```
+
+Solid arrows are mandatory links; dashed arrows are conditional (only created when the
+situation applies).
 
 ### 4.1 Link Direction
 

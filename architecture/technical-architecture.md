@@ -21,7 +21,7 @@
 | Field | Value |
 |-------|-------|
 | **Document ID** | `ARCH-TECH-001` |
-| **Version** | `0.1` |
+| **Version** | `0.2` |
 | **Status** | `Draft` |
 | **Owner** | System Architect |
 | **Last Updated** | `YYYY-MM-DD` |
@@ -34,12 +34,20 @@
 ## 1. System Context Diagram (C4 Level 1)
 
 <!--
-  The highest level of abstraction. Shows the system as a single box, surrounded by
+  Purpose: Highest-level abstraction — the system as a single box, surrounded by
   the users and external systems it interacts with.
-  Replace [PLACEHOLDER] elements with actual actors and systems.
+  Audience: Architect / Designer / Developer / Stakeholders
+  Last reviewed: 2026-05-16 by Architect
+
+  Authoring rules:
+   - Replace [PLACEHOLDER] elements with actual actors and systems.
+   - Keep both the C4Context diagram and the flowchart fallback (some renderers
+     do not support the C4 extension; the flowchart guarantees rendering everywhere).
 -->
 
 ```mermaid
+%% Title: System Context Diagram (C4 Level 1)
+%% Type:  C4Context
 C4Context
     title System Context Diagram — [PLACEHOLDER — Project Name]
 
@@ -62,26 +70,29 @@ C4Context
 ```
 
 <!--
-  If the Mermaid C4 extension is not available in your renderer, use the following
-  flowchart-based alternative:
+  Flowchart fallback — same content as the C4Context diagram above, expressed in
+  plain flowchart syntax for renderers that lack the C4 extension (e.g., some
+  legacy GitHub Enterprise versions, older VS Code Mermaid previews).
 -->
 
 ```mermaid
+%% Title: System Context Diagram (flowchart fallback)
+%% Type:  flowchart
 flowchart TD
-    subgraph External Actors
+    subgraph "External Actors"
         User["👤 End User"]
         Admin["👤 Administrator"]
     end
 
     subgraph "System Boundary"
-        System["[PLACEHOLDER — Project Name]\n Core Platform"]
+        System[/"PLACEHOLDER: Project Name<br/>Core Platform"/]
     end
 
-    subgraph External Systems
-        Email["📧 Email Service\n[PLACEHOLDER]"]
-        Payment["💳 Payment Gateway\n[PLACEHOLDER]"]
-        Monitor["📊 Monitoring\n[PLACEHOLDER]"]
-        CDN["🌐 CDN\n[PLACEHOLDER]"]
+    subgraph "External Systems"
+        Email[/"📧 Email Service<br/>PLACEHOLDER"/]
+        Payment[/"💳 Payment Gateway<br/>PLACEHOLDER"/]
+        Monitor[/"📊 Monitoring<br/>PLACEHOLDER"/]
+        CDN[/"🌐 CDN<br/>PLACEHOLDER"/]
     end
 
     User -->|"HTTPS"| System
@@ -97,32 +108,36 @@ flowchart TD
 ## 2. Container Diagram (C4 Level 2)
 
 <!--
-  Zoom into the system boundary. Show the major deployable units:
-  applications, services, databases, message queues, caches.
-  Each container is a separately running process or deployable artifact.
+  Purpose: Zoom into the system boundary. Show the major deployable units —
+  applications, services, databases, message queues, caches. Each container is
+  a separately running process or deployable artifact.
+  Audience: Architect / Designer / Developer
+  Last reviewed: 2026-05-16 by Architect
 -->
 
 ```mermaid
+%% Title: Container Diagram (C4 Level 2)
+%% Type:  flowchart
 flowchart TD
     subgraph "Client Layer"
-        WebApp["React Web App\nTypeScript / React\nSingle Page Application"]
-        MobileApp["React Native App\nTypeScript / React Native\niOS & Android"]
+        WebApp["React Web App<br/>TypeScript / React<br/>Single Page Application"]
+        MobileApp["React Native App<br/>TypeScript / React Native<br/>iOS & Android"]
     end
 
     subgraph "API Layer"
-        Gateway["API Gateway\nNestJS\nRouting, rate limiting, auth"]
+        Gateway["API Gateway<br/>NestJS<br/>Routing, rate limiting, auth"]
     end
 
     subgraph "Service Layer"
-        AuthSvc["Auth Service\nNestJS\nRegistration, login, JWT"]
-        CoreSvc["[PLACEHOLDER] Service\nNestJS\n[PLACEHOLDER — primary business logic]"]
-        NotifSvc["Notification Service\nNestJS\nEmail, push, in-app notifications"]
+        AuthSvc["Auth Service<br/>NestJS<br/>Registration, login, JWT"]
+        CoreSvc[/"PLACEHOLDER: Service<br/>NestJS<br/>PLACEHOLDER: primary business logic"/]
+        NotifSvc["Notification Service<br/>NestJS<br/>Email, push, in-app notifications"]
     end
 
     subgraph "Data Layer"
-        PG[("PostgreSQL\nPrimary database\nUser data, business entities")]
-        Redis[("Redis Cluster\nSession cache, rate limiting\nPub/Sub for real-time")]
-        MQ["Message Queue\n[PLACEHOLDER — e.g., RabbitMQ / Redis Streams]\nAsync task processing"]
+        PG[("PostgreSQL<br/>Primary database<br/>User data, business entities")]
+        Redis[("Redis Cluster<br/>Session cache, rate limiting<br/>Pub/Sub for real-time")]
+        MQ[/"Message Queue<br/>PLACEHOLDER: e.g., RabbitMQ / Redis Streams<br/>Async task processing"/]
     end
 
     subgraph "External"
@@ -164,16 +179,24 @@ flowchart TD
 
 ### 3.1 Auth Service — Component Diagram
 
+<!--
+  Purpose: Internal components of the Auth Service (C4 Level 3).
+  Audience: Developer (Auth module owner) / Architect
+  Last reviewed: 2026-05-16 by Architect
+-->
+
 ```mermaid
+%% Title: Auth Service — Component Diagram (C4 Level 3)
+%% Type:  flowchart
 flowchart TD
     subgraph "Auth Service"
-        Controller["Auth Controller\nREST endpoints:\nPOST /register\nPOST /login\nPOST /refresh\nPOST /reset-password"]
-        AuthGuard["JWT Auth Guard\nMiddleware: validates tokens\non protected routes"]
-        UserSvc["User Service\nBusiness logic:\nregistration, verification,\npassword management"]
-        TokenSvc["Token Service\nJWT generation,\nvalidation, refresh\ntoken rotation"]
-        HashSvc["Hash Service\nbcrypt password\nhashing and verification"]
-        UserRepo["User Repository\nTypeORM / Prisma\nPostgreSQL queries"]
-        SessionRepo["Session Repository\nRedis operations:\ntoken storage, TTL"]
+        Controller["Auth Controller<br/>REST endpoints:<br/>POST /register<br/>POST /login<br/>POST /refresh<br/>POST /reset-password"]
+        AuthGuard["JWT Auth Guard<br/>Middleware: validates tokens<br/>on protected routes"]
+        UserSvc["User Service<br/>Business logic:<br/>registration, verification,<br/>password management"]
+        TokenSvc["Token Service<br/>JWT generation,<br/>validation, refresh<br/>token rotation"]
+        HashSvc["Hash Service<br/>bcrypt password<br/>hashing and verification"]
+        UserRepo["User Repository<br/>TypeORM / Prisma<br/>PostgreSQL queries"]
+        SessionRepo["Session Repository<br/>Redis operations:<br/>token storage, TTL"]
     end
 
     Controller --> AuthGuard
@@ -188,12 +211,20 @@ flowchart TD
 
 ### 3.2 [PLACEHOLDER — Service Name] — Component Diagram
 
+<!--
+  Purpose: Component template — duplicate for each complex service.
+  Audience: Developer (module owner) / Architect
+  Last reviewed: 2026-05-16 by Architect
+-->
+
 ```mermaid
+%% Title: PLACEHOLDER Service — Component Diagram (C4 Level 3)
+%% Type:  flowchart
 flowchart TD
-    subgraph "[PLACEHOLDER — Service Name]"
-        Ctrl["[PLACEHOLDER] Controller\n[PLACEHOLDER — endpoints]"]
-        Svc["[PLACEHOLDER] Service\n[PLACEHOLDER — business logic]"]
-        Repo["[PLACEHOLDER] Repository\n[PLACEHOLDER — data access]"]
+    subgraph "PLACEHOLDER: Service Name"
+        Ctrl[/"PLACEHOLDER: Controller<br/>endpoints"/]
+        Svc[/"PLACEHOLDER: Service<br/>business logic"/]
+        Repo[/"PLACEHOLDER: Repository<br/>data access"/]
     end
 
     Ctrl --> Svc
@@ -273,26 +304,43 @@ flowchart TD
 
 ### 6.1 [PLACEHOLDER — Flow Name, e.g., User Registration Data Flow]
 
+<!--
+  Purpose: Step-by-step data flow for a critical operation. Each edge label
+  numbers the step so the diagram reads like a runbook.
+  Audience: Architect / Developer / QC
+  Last reviewed: 2026-05-16 by Architect
+-->
+
 ```mermaid
+%% Title: User Registration — Data Flow
+%% Type:  flowchart
 flowchart LR
-    A["Client\n(React App)"] -->|"1. POST /v1/auth/register\n{email, password}"| B["API Gateway"]
+    A["Client<br/>(React App)"] -->|"1. POST /v1/auth/register<br/>{email, password}"| B["API Gateway"]
     B -->|"2. Forward request"| C["Auth Service"]
-    C -->|"3. Hash password\n(bcrypt)"| C
+    C -->|"3. Hash password<br/>(bcrypt)"| C
     C -->|"4. INSERT user"| D[("PostgreSQL")]
     D -->|"5. User record created"| C
-    C -->|"6. Publish event\nuser.registered"| E["Message Queue"]
+    C -->|"6. Publish event<br/>user.registered"| E["Message Queue"]
     E -->|"7. Consume event"| F["Notification Service"]
-    F -->|"8. Send verification email"| G["Email Service\n(External)"]
+    F -->|"8. Send verification email"| G["Email Service<br/>(External)"]
     C -->|"9. Return userId"| B
-    B -->|"10. 201 Created\n{userId, message}"| A
+    B -->|"10. 201 Created<br/>{userId, message}"| A
 ```
 
 ### 6.2 [PLACEHOLDER — Flow Name]
 
+<!--
+  Purpose: Template for a second critical data flow.
+  Audience: Architect / Developer / QC
+  Last reviewed: 2026-05-16 by Architect
+-->
+
 ```mermaid
+%% Title: PLACEHOLDER — Data Flow
+%% Type:  flowchart
 flowchart LR
-    A["[PLACEHOLDER — Source]"] -->|"[PLACEHOLDER — Step 1]"| B["[PLACEHOLDER — Target]"]
-    B -->|"[PLACEHOLDER — Step 2]"| C["[PLACEHOLDER — Target]"]
+    A[/"PLACEHOLDER: Source"/] -->|"PLACEHOLDER: Step 1"| B[/"PLACEHOLDER: Target"/]
+    B -->|"PLACEHOLDER: Step 2"| C[/"PLACEHOLDER: Target"/]
 ```
 
 ---
@@ -300,45 +348,49 @@ flowchart LR
 ## 7. Deployment Architecture
 
 <!--
-  Show the Kubernetes cluster topology, namespaces, pods, and external service connections.
-  This feeds directly into design/infrastructure-design.md.
+  Purpose: Kubernetes cluster topology — namespaces, pods, and external service
+  connections. This feeds directly into design/infrastructure-design.md.
+  Audience: Architect / Designer / Operator
+  Last reviewed: 2026-05-16 by Architect
 -->
 
 ```mermaid
+%% Title: Deployment Architecture (K8s topology)
+%% Type:  flowchart
 flowchart TD
     subgraph "Internet"
         Users["Users"]
-        CDN["CDN\n[PLACEHOLDER]"]
+        CDN[/"CDN<br/>PLACEHOLDER"/]
     end
 
     subgraph "Kubernetes Cluster"
         subgraph "ingress namespace"
-            Ingress["Ingress Controller\nNginx / Traefik\nTLS termination"]
+            Ingress["Ingress Controller<br/>Nginx / Traefik<br/>TLS termination"]
         end
 
         subgraph "app namespace"
-            GW["API Gateway\n2+ replicas"]
-            Auth["Auth Service\n2+ replicas"]
-            Core["[PLACEHOLDER] Service\n2+ replicas"]
-            Notif["Notification Service\n2+ replicas"]
+            GW["API Gateway<br/>2+ replicas"]
+            Auth["Auth Service<br/>2+ replicas"]
+            Core[/"PLACEHOLDER: Service<br/>2+ replicas"/]
+            Notif["Notification Service<br/>2+ replicas"]
         end
 
         subgraph "data namespace"
-            PG["PostgreSQL\nPrimary + Read Replica"]
-            Redis["Redis Cluster\n3+ nodes"]
-            MQ["[PLACEHOLDER — Message Queue]\n[PLACEHOLDER — HA config]"]
+            PG["PostgreSQL<br/>Primary + Read Replica"]
+            Redis["Redis Cluster<br/>3+ nodes"]
+            MQ[/"PLACEHOLDER: Message Queue<br/>PLACEHOLDER: HA config"/]
         end
 
         subgraph "monitoring namespace"
             Prom["Prometheus"]
             Grafana["Grafana"]
-            Loki["[PLACEHOLDER — Log aggregator]"]
+            Loki[/"PLACEHOLDER: Log aggregator"/]
         end
     end
 
     subgraph "External Services"
         EmailExt["Email Service"]
-        PaymentExt["[PLACEHOLDER]"]
+        PaymentExt[/"PLACEHOLDER"/]
     end
 
     Users -->|"HTTPS"| CDN
@@ -520,6 +572,7 @@ Use NestJS as the backend framework for all API services.
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 0.1 | YYYY-MM-DD | System Architect | Initial template created |
+| 0.2 | 2026-05-16 | System Architect | Standardized all 8 diagrams to repo Mermaid conventions: added `%% Title:` / `%% Type:` headers, replaced `\n` with `<br/>` in node labels, quoted all subgraph names, reshaped `[PLACEHOLDER — X]` nodes as parallelograms (`[/"PLACEHOLDER: X"/]`) to visually distinguish them from real nodes. Preserved the existing C4Context + flowchart fallback pattern for the System Context diagram. |
 | | | | |
 
 ---

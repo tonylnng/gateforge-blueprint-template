@@ -56,6 +56,8 @@
 ### Spike Test Profile
 
 ```mermaid
+%% Title: Spike Test Profile
+%% Type:  xychart-beta
 xychart-beta
     title "Spike Test Profile"
     x-axis "Time (minutes)" [0, 0.5, 1, 3, 5, 5.5, 6]
@@ -66,6 +68,8 @@ xychart-beta
 ### Incremental Stress Profile
 
 ```mermaid
+%% Title: Incremental Stress Profile
+%% Type:  xychart-beta
 xychart-beta
     title "Incremental Stress Profile"
     x-axis "Time (minutes)" [0, 3, 6, 9, 12, 15, 18, 21, 24]
@@ -163,6 +167,8 @@ When the system is under stress beyond its rated capacity, the following degrada
 ### Recovery Flow
 
 ```mermaid
+%% Title: Recovery Flow
+%% Type:  flowchart
 flowchart LR
     A[Baseline: 5 min] --> B[Stress: ramp to breaking point]
     B --> C[Hold at breaking point: 5 min]

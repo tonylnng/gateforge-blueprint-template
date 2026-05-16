@@ -17,6 +17,8 @@ Examples: `ITER-001.md`, `ITER-002.md`, `ITER-003.md`
 ## Iteration Lifecycle
 
 ```mermaid
+%% Title: Iteration Lifecycle
+%% Type:  stateDiagram-v2
 stateDiagram-v2
     [*] --> Planning
     Planning --> Active

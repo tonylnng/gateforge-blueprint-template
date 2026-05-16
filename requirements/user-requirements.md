@@ -142,6 +142,8 @@
 ### 4.1 [PLACEHOLDER — Workflow Name, e.g., User Registration Flow]
 
 ```mermaid
+%% Title: [PLACEHOLDER — Workflow Name, e.g., User Registration Flow]
+%% Type:  flowchart
 flowchart TD
     A[User opens registration page] --> B[User enters email and password]
     B --> C{Email format valid?}
@@ -165,6 +167,8 @@ flowchart TD
 ### 4.2 [PLACEHOLDER — Workflow Name]
 
 ```mermaid
+%% Title: [PLACEHOLDER — Workflow Name]
+%% Type:  flowchart
 flowchart TD
     A[PLACEHOLDER — Start] --> B[PLACEHOLDER — Step 1]
     B --> C[PLACEHOLDER — Step 2]
@@ -184,6 +188,8 @@ flowchart TD
 ### 5.1 [PLACEHOLDER — Interaction Name, e.g., User Login Sequence]
 
 ```mermaid
+%% Title: [PLACEHOLDER — Interaction Name, e.g., User Login Sequence]
+%% Type:  sequenceDiagram
 sequenceDiagram
     actor User
     participant Frontend as React Frontend
@@ -218,6 +224,8 @@ sequenceDiagram
 ### 5.2 [PLACEHOLDER — Interaction Name]
 
 ```mermaid
+%% Title: [PLACEHOLDER — Interaction Name]
+%% Type:  sequenceDiagram
 sequenceDiagram
     actor User
     participant Frontend as React Frontend

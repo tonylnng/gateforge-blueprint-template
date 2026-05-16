@@ -187,6 +187,8 @@ DEF-<NNN>.md
 ### Status Workflow
 
 ```mermaid
+%% Title: Status Workflow
+%% Type:  stateDiagram-v2
 stateDiagram-v2
     [*] --> reported : QC Agent discovers defect
     reported --> confirmed : Architect triages and confirms

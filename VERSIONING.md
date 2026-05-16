@@ -63,6 +63,8 @@ auto-bump workflow refuses to bump MAJOR.
 ## 4. Decision Tree (the AI agent runs this on every push)
 
 ```mermaid
+%% Title: Decision Tree (the AI agent runs this on every push)
+%% Type:  flowchart
 flowchart TD
     A[Push received on any branch] --> B{End-user explicitly<br/>requested MAJOR bump?<br/>commit trailer:<br/>Version-Bump: major}
     B -->|Yes| C[Bump MAJOR<br/>Reset MINOR=0, PATCH=0]
