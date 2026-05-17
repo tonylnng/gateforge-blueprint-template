@@ -11,11 +11,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `PRJ-AGENTS-001` |
-| **Version** | `1.0` |
+| **Version** | `1.2` |
 | **Status** | `Approved` |
 | **Owner** | System Architect |
 | **Read By** | All agents |
-| **Last Updated** | 2026-05-01 |
+| **Last Updated** | 2026-05-16 |
 
 ---
 
@@ -56,6 +56,8 @@ Use this minimal block when contributing to `project/` (any role).
   - [ ] New ADR uses ADR-NNN with the next free number
   - [ ] Release entries include the evidence-pack pointer
   - [ ] Compliance control changes record owner + last-reviewed date
+  - [ ] Mandatory diagrams produced as Mermaid (see §4): State Diagram for release and iteration lifecycles
+  - [ ] Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names)
   - [ ] Revision History row added in every modified file
 ```
 
@@ -70,10 +72,52 @@ Use this minimal block when contributing to `project/` (any role).
 | PRJ-G3 | Status reports cite linked artifacts (FRs, defects, releases) | `project/status.md` |
 | PRJ-G4 | Compliance control updates include owner, status, evidence link, last-reviewed date | `project/compliance-controls.md` |
 | PRJ-G5 | Revision History bumped on every modified file | admin-portal-validation §3.3 |
+| PRJ-G6 | **State Diagram** (Mermaid `stateDiagram-v2`) present and current for the release lifecycle in `project/releases/README.md` AND for the iteration lifecycle in `project/iterations/README.md` | §4 below |
+| PRJ-G7 | Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names) | §4 below |
 
 ---
 
-## 4. Commit Convention
+## 4. Mandatory Diagrams (Mermaid-only)
+
+> **Universal rule for all roles:** Every diagram in this repository MUST be authored in **Mermaid**. ASCII directory trees are the only exception. The six canonical diagram types adopted across the blueprint are: **Architecture Diagram, Workflow Diagram, State Diagram, Sequence Diagram, ER Diagram, User Journey**.
+
+**This role (Project Manager) MUST author the following diagrams:**
+
+| Diagram Type | Where it lives | When it is mandatory |
+|---|---|---|
+| **State Diagram** (`stateDiagram-v2`) | `project/releases/README.md` (release lifecycle) AND `project/iterations/README.md` (iteration lifecycle) | Both diagrams must exist and reflect the current process. Updated when lifecycle changes (new gate, new state, deprecated state). |
+
+**Convention reminder** (full rules in `design/README.md` §Mermaid Conventions):
+
+```text
+%% Title: <descriptive title>
+%% Type:  stateDiagram-v2
+<diagram-type> <direction>
+    ...
+```
+
+Additional rules: use `<br/>` (never `\n`) inside labels; quote subgraph names containing spaces; use `[/"PLACEHOLDER: X"/]` parallelograms for template gaps; prepend an HTML-comment Purpose/Audience/Last-reviewed block above non-trivial diagrams.
+
+**Example — Release lifecycle State Diagram skeleton:**
+
+```mermaid
+%% Title: Release Lifecycle
+%% Type:  stateDiagram-v2
+stateDiagram-v2
+    direction LR
+    [*] --> Planned
+    Planned --> InDev: backlog locked
+    InDev --> InTest: code-complete
+    InTest --> Staged: QC PROMOTE
+    Staged --> Released: prod deploy verified
+    Released --> [*]
+    InTest --> InDev: QC HOLD
+    Staged --> InDev: rollback
+```
+
+---
+
+## 5. Commit Convention
 
 Each agent uses their own role prefix (`[Architect]`, `[Designer]`, `[Dev]`,
 `[QC]`, `[Ops]`). Type follows the standard table in `/VERSIONING.md` §5.
@@ -118,3 +162,4 @@ human review — abuse will be caught downstream and may revoke the agent's auth
 |---------|------------|-------------------|----------------|
 | 1.0     | 2026-05-01 | System Architect  | Initial cross-agent compliance manifest for project/. |
 | 1.1     | 2026-05-15 | Project Manager   | Add Pre-Work Gate section (mandatory docs-before-code checklist) aligned with `.github/workflows/prework-gate.yml` and the README Mandatory Work Order. |
+| 1.2     | 2026-05-16 | Project Manager   | Mandate six canonical Mermaid diagram types repo-wide. PM role MUST author State Diagram for release and iteration lifecycles. Adds §4 Mandatory Diagrams, gates PRJ-G6/G7; renumbers Commit Convention to §5. |

@@ -10,11 +10,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `ARC-AGENTS-001` |
-| **Version** | `1.0` |
+| **Version** | `1.2` |
 | **Status** | `Approved` |
 | **Owner** | System Architect |
 | **Read By** | System Architect (primary), System Designer (contributor) |
-| **Last Updated** | 2026-05-01 |
+| **Last Updated** | 2026-05-16 |
 
 ---
 
@@ -68,6 +68,8 @@ gates so the contract remains coherent.
   - [ ] Every breaking architectural change has a new ADR
   - [ ] C4 diagrams updated where component topology changed
   - [ ] No secrets / production hostnames added
+  - [ ] Mandatory diagrams produced as Mermaid (see §5): C4 Architecture Diagrams (L1/L2/L3), ER Diagram for data-model, Sequence Diagram for every cross-service interaction
+  - [ ] Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names)
   - [ ] Revision History rows added in every modified file
 ```
 
@@ -83,10 +85,53 @@ gates so the contract remains coherent.
 | ARC-G4 | C4 Container or Component diagram updated when topology changes | `architecture/technical-architecture.md` |
 | ARC-G5 | No secrets / non-public hostnames / PHI / PII | admin-portal-validation §5.2 |
 | ARC-G6 | Revision History bumped on every modified file | admin-portal-validation §3.3 |
+| ARC-G7 | **C4 Architecture Diagrams** (Context L1, Container L2, Component L3) present and current in `architecture/technical-architecture.md` for every system/sub-system | §5 below |
+| ARC-G8 | **ER Diagram** (Mermaid `erDiagram`) present and current in `architecture/data-model.md` for every persisted entity set | §5 below |
+| ARC-G9 | **Sequence Diagram** (Mermaid `sequenceDiagram`) present for every cross-service synchronous call or async event flow in `architecture/technical-architecture.md` | §5 below |
+| ARC-G10 | Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names) | §5 below |
 
 ---
 
-## 5. Commit Convention
+## 5. Mandatory Diagrams (Mermaid-only)
+
+> **Universal rule for all roles:** Every diagram in this repository MUST be authored in **Mermaid**. ASCII directory trees are the only exception. The six canonical diagram types adopted across the blueprint are: **Architecture Diagram, Workflow Diagram, State Diagram, Sequence Diagram, ER Diagram, User Journey**.
+
+**This role (System Architect — Architecture) MUST author the following diagrams:**
+
+| Diagram Type | Where it lives | When it is mandatory |
+|---|---|---|
+| **Architecture Diagram** (C4: `C4Context` + `flowchart` fallback) | `architecture/technical-architecture.md` | C4 L1 Context, L2 Container, L3 Component for every system/sub-system. Updated whenever topology changes (ARC-G4). |
+| **ER Diagram** (`erDiagram`) | `architecture/data-model.md` | For every persisted entity set; updated when any entity, key, or cardinality changes. |
+| **Sequence Diagram** (`sequenceDiagram`) | `architecture/technical-architecture.md` (or dedicated sub-doc) | For every cross-service synchronous call OR async event flow described in the architecture. |
+
+**Convention reminder** (mandatory for every Mermaid block; full rules in `design/README.md` §Mermaid Conventions):
+
+```text
+%% Title: <descriptive title>
+%% Type:  <flowchart | erDiagram | sequenceDiagram | stateDiagram-v2 | C4Context>
+<diagram-type> <direction>
+    ...
+```
+
+Additional rules: use `<br/>` (never `\n`) inside labels; quote subgraph names containing spaces; use `[/"PLACEHOLDER: X"/]` parallelograms for template gaps; prepend an HTML-comment Purpose/Audience/Last-reviewed block above non-trivial diagrams.
+
+**Example — ER Diagram skeleton:**
+
+```mermaid
+%% Title: <Domain> — Entity Relationship
+%% Type:  erDiagram
+erDiagram
+    USER ||--o{ ORDER : places
+    ORDER ||--|{ ORDER_ITEM : contains
+    USER {
+        uuid id PK
+        string email UK
+    }
+```
+
+---
+
+## 6. Commit Convention
 
 Prefix: `[Architect]`
 
@@ -134,3 +179,4 @@ human review — abuse will be caught downstream and may revoke the agent's auth
 |---------|------------|-------------------|----------------|
 | 1.0     | 2026-05-01 | System Architect  | Initial architecture compliance manifest. |
 | 1.1     | 2026-05-15 | System Architect  | Add Pre-Work Gate section (mandatory docs-before-code checklist) aligned with `.github/workflows/prework-gate.yml` and the README Mandatory Work Order. |
+| 1.2     | 2026-05-16 | System Architect  | Mandate six canonical Mermaid diagram types repo-wide. Architecture role MUST author C4 Architecture Diagrams (L1/L2/L3), ER Diagram (data-model), and Sequence Diagrams (cross-service flows). Adds §5 Mandatory Diagrams, gates ARC-G7/G8/G9/G10; renumbers Commit Convention to §6. |

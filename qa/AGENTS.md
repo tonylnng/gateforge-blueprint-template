@@ -15,11 +15,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `QA-AGENTS-001` |
-| **Version** | `1.0` |
+| **Version** | `1.2` |
 | **Status** | `Approved` |
 | **Owner** | QC Agents (compliance) / System Architect (rules) |
 | **Read By** | All QC Agents |
-| **Last Updated** | 2026-05-01 |
+| **Last Updated** | 2026-05-16 |
 
 ---
 
@@ -94,6 +94,8 @@ Three behavioral guarantees this file gives us:
   - [ ] QA-G6  Every executed TC links to an FR
   - [ ] QA-G7  Every found defect filed as DEF-NNN with severity
   - [ ] QA-G8  metrics.md updated with this run
+  - [ ] QA-G9  Mandatory diagrams produced as Mermaid (see §5): User Journey linked to test scenarios, Workflow Diagram for the test execution flow, State Diagram for defect & test-case lifecycle
+  - [ ] QA-G10 Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names)
 - Waivers (only valid if explicitly granted by Architect; cite ADR or status report):
   - <none> | <waiver text + ADR-NNN or status-YYYY-MM-DD>
 ```
@@ -112,6 +114,10 @@ Three behavioral guarantees this file gives us:
 | QA-G6 | Every executed TC links up to an FR | TC metadata block | admin-portal-validation §4 |
 | QA-G7 | Every defect found is filed as `DEF-NNN.md` with severity, repro steps, linked TC | `qa/defects/README.md` |
 | QA-G8 | `qa/metrics.md` updated within the same PR | living dashboard | `qa/README.md` §4 |
+| QA-G9 | **User Journey** (Mermaid `journey`) cross-referenced with end-to-end test scenarios in `qa/test-plan.md` or `qa/test-cases/` | one per critical user journey | §5 below |
+| QA-G10 | **Workflow Diagram** (Mermaid `flowchart`) for the test execution / triage flow in `qa/README.md` | one diagram, kept current | §5 below |
+| QA-G11 | **State Diagram** (Mermaid `stateDiagram-v2`) for the defect lifecycle in `qa/defects/README.md` AND for the test-case lifecycle in `qa/test-cases/README.md` | both present | §5 below |
+| QA-G12 | Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names) | structural | §5 below |
 
 **Critical rule for QA-G3 (E2E):** Skipping E2E is the failure mode this entire
 manifest exists to prevent. The only valid reasons to NOT execute E2E are:
@@ -126,7 +132,50 @@ release, and fix the environment.
 
 ---
 
-## 5. Commit Convention
+## 5. Mandatory Diagrams (Mermaid-only)
+
+> **Universal rule for all roles:** Every diagram in this repository MUST be authored in **Mermaid**. ASCII directory trees are the only exception. The six canonical diagram types adopted across the blueprint are: **Architecture Diagram, Workflow Diagram, State Diagram, Sequence Diagram, ER Diagram, User Journey**.
+
+**This role (QC) MUST author the following diagrams:**
+
+| Diagram Type | Where it lives | When it is mandatory |
+|---|---|---|
+| **User Journey** (`journey`) | `qa/test-plan.md` or `qa/test-cases/` | Cross-reference the Requirements role's User Journey — annotate each step with the TC-IDs that exercise it. One per critical end-to-end journey. |
+| **Workflow Diagram** (`flowchart`) | `qa/README.md` | One diagram describing the test execution + defect triage flow (from Test-Plan → TC execution → Defect file → Re-test → Sign-off). Kept current. |
+| **State Diagram** (`stateDiagram-v2`) | `qa/defects/README.md` (defect lifecycle) AND `qa/test-cases/README.md` (test-case lifecycle) | Both diagrams must reflect current process states. |
+
+**Convention reminder** (full rules in `design/README.md` §Mermaid Conventions):
+
+```text
+%% Title: <descriptive title>
+%% Type:  <journey | flowchart | stateDiagram-v2>
+<diagram-type> <direction>
+    ...
+```
+
+Additional rules: use `<br/>` (never `\n`) inside labels; quote subgraph names containing spaces; use `[/"PLACEHOLDER: X"/]` parallelograms for template gaps; prepend an HTML-comment Purpose/Audience/Last-reviewed block above non-trivial diagrams.
+
+**Example — Defect lifecycle State Diagram skeleton:**
+
+```mermaid
+%% Title: Defect Lifecycle
+%% Type:  stateDiagram-v2
+stateDiagram-v2
+    direction LR
+    [*] --> New
+    New --> Triaged: severity assigned
+    Triaged --> InFix: dev accepts
+    InFix --> ReadyToVerify: fix committed
+    ReadyToVerify --> Verified: QC re-tests pass
+    ReadyToVerify --> Reopened: QC re-tests fail
+    Reopened --> InFix
+    Verified --> Closed
+    Closed --> [*]
+```
+
+---
+
+## 6. Commit Convention
 
 Prefix: `[QC]`
 
@@ -140,7 +189,7 @@ Prefix: `[QC]`
 
 ---
 
-## 6. Failure Modes & Self-Recovery
+## 7. Failure Modes & Self-Recovery
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -186,3 +235,4 @@ human review — abuse will be caught downstream and may revoke the agent's auth
 |---------|------------|--------------------|----------------|
 | 1.0     | 2026-05-01 | QC Agents + Architect | Initial QA compliance manifest with explicit E2E gate (QA-G3) and mandatory Pre-Flight Acknowledgement to address recurrent E2E-skipping. |
 | 1.1     | 2026-05-15 | QA Engineer       | Add Pre-Work Gate section (mandatory docs-before-code checklist) aligned with `.github/workflows/prework-gate.yml` and the README Mandatory Work Order. |
+| 1.2     | 2026-05-16 | QC Agent          | Mandate six canonical Mermaid diagram types repo-wide. QC role MUST author User Journey (linked to test scenarios), Workflow Diagram (test execution flow), and State Diagram (defect + test-case lifecycles). Adds §5 Mandatory Diagrams, gates QA-G9/G10/G11/G12; renumbers Commit Convention to §6 and Failure Modes to §7. |

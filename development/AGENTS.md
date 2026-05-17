@@ -10,11 +10,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `DEV-AGENTS-001` |
-| **Version** | `1.0` |
+| **Version** | `1.2` |
 | **Status** | `Approved` |
 | **Owner** | System Architect (rules) / Developers (compliance) |
 | **Read By** | All Developer agents |
-| **Last Updated** | 2026-05-01 |
+| **Last Updated** | 2026-05-16 |
 
 ---
 
@@ -68,6 +68,8 @@
   - [ ] Resilience: outbound calls wrapped in the pattern from resilience-design.md
   - [ ] Monitoring: new metric / log statement matches monitoring-design.md taxonomy
   - [ ] Module doc updated with any new endpoint, event, or config key
+  - [ ] Mandatory diagrams produced as Mermaid (see §4): Sequence Diagram for any complex module logic, State Diagram for every state machine in code
+  - [ ] Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names)
   - [ ] Revision History row added in every modified Markdown file
 ```
 
@@ -86,10 +88,58 @@
 | DEV-G7 | New metrics, logs, traces follow the taxonomy in `monitoring-design.md` | `design/monitoring-design.md` |
 | DEV-G8 | `development/modules/<module>.md` updated to reflect the change | `development/README.md` |
 | DEV-G9 | Revision History row in every modified Markdown file; `Version` field bumped | admin-portal-validation §3.3 |
+| DEV-G10 | **Sequence Diagram** (Mermaid `sequenceDiagram`) added to `development/modules/<module>.md` for every complex multi-call code path (≥ 3 participants OR ≥ 5 messages) | §4 below |
+| DEV-G11 | **State Diagram** (Mermaid `stateDiagram-v2`) added to `development/modules/<module>.md` for every explicit state machine implemented in code | §4 below |
+| DEV-G12 | Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names) | §4 below |
 
 ---
 
-## 4. Commit Convention
+## 4. Mandatory Diagrams (Mermaid-only)
+
+> **Universal rule for all roles:** Every diagram in this repository MUST be authored in **Mermaid**. ASCII directory trees are the only exception. The six canonical diagram types adopted across the blueprint are: **Architecture Diagram, Workflow Diagram, State Diagram, Sequence Diagram, ER Diagram, User Journey**.
+
+**This role (Developer) MUST author the following diagrams:**
+
+| Diagram Type | Where it lives | When it is mandatory |
+|---|---|---|
+| **Sequence Diagram** (`sequenceDiagram`) | `development/modules/<module>.md` | For every complex code path with ≥ 3 participants (services / modules / actors) OR ≥ 5 messages. Add or update on every related code change. |
+| **State Diagram** (`stateDiagram-v2`) | `development/modules/<module>.md` | For every explicit state machine the code implements (enum-driven workflows, status transitions, retry/backoff machines). Diagram MUST match the code. |
+
+> **Note:** Architecture-wide Sequence Diagrams stay in `architecture/`. Developers contribute *module-scoped* sequences only. If your code introduces a new cross-service flow, the System Architect updates `architecture/technical-architecture.md` as well.
+
+**Convention reminder** (full rules in `design/README.md` §Mermaid Conventions):
+
+```text
+%% Title: <descriptive title>
+%% Type:  <sequenceDiagram | stateDiagram-v2 | flowchart>
+<diagram-type> <direction>
+    ...
+```
+
+Additional rules: use `<br/>` (never `\n`) inside labels; quote subgraph names containing spaces; use `[/"PLACEHOLDER: X"/]` parallelograms for template gaps; prepend an HTML-comment Purpose/Audience/Last-reviewed block above non-trivial diagrams.
+
+**Example — Sequence Diagram skeleton:**
+
+```mermaid
+%% Title: <module> — <flow name>
+%% Type:  sequenceDiagram
+sequenceDiagram
+    autonumber
+    actor User
+    participant API as API Gateway
+    participant Svc as <Service>
+    participant DB as Database
+    User->>API: request
+    API->>Svc: invoke handler
+    Svc->>DB: query
+    DB-->>Svc: rows
+    Svc-->>API: response
+    API-->>User: 200 OK
+```
+
+---
+
+## 5. Commit Convention
 
 Prefix: `[Dev]`
 
@@ -107,7 +157,7 @@ CHANGELOG section: `[Dev] fix(security): patch JWT refresh replay vector`.
 
 ---
 
-## 5. Failure Modes & Self-Recovery
+## 6. Failure Modes & Self-Recovery
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -153,3 +203,4 @@ human review — abuse will be caught downstream and may revoke the agent's auth
 |---------|------------|-------------------|----------------|
 | 1.0     | 2026-05-01 | System Architect  | Initial development compliance manifest. |
 | 1.1     | 2026-05-15 | Developer         | Add Pre-Work Gate section (mandatory docs-before-code checklist) aligned with `.github/workflows/prework-gate.yml` and the README Mandatory Work Order. |
+| 1.2     | 2026-05-16 | Developer         | Mandate six canonical Mermaid diagram types repo-wide. Developer role MUST author Sequence Diagram (complex module flows) and State Diagram (state machines) in `development/modules/<module>.md`. Adds §4 Mandatory Diagrams, gates DEV-G10/G11/G12; renumbers Commit Convention to §5 and Failure Modes to §6. |

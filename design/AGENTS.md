@@ -9,11 +9,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `DES-AGENTS-001` |
-| **Version** | `1.0` |
+| **Version** | `1.2` |
 | **Status** | `Approved` |
 | **Owner** | System Designer |
 | **Read By** | System Designer (primary); reviewed by System Architect |
-| **Last Updated** | 2026-05-01 |
+| **Last Updated** | 2026-05-16 |
 
 ---
 
@@ -59,6 +59,8 @@
   - [ ] Resilience pattern (circuit breaker / retry / fallback) chosen for every new outbound call
   - [ ] Monitoring SLI/SLO defined for every new component
   - [ ] No secrets / hostnames / PII in design docs
+  - [ ] Mandatory diagrams produced as Mermaid (see §4): Sequence Diagram for every inter-component flow, State Diagram for every component/feature lifecycle, Workflow Diagram for every operational flow
+  - [ ] Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names)
   - [ ] Revision History rows added in every modified file
 ```
 
@@ -75,10 +77,53 @@
 | DES-G5 | Database changes include index strategy + query baseline in `database-design.md` | `design/database-design.md` |
 | DES-G6 | No secrets / production hostnames / real PII in any design doc | admin-portal-validation §5.2 |
 | DES-G7 | Revision History bumped per modified file | admin-portal-validation §3.3 |
+| DES-G8 | **Sequence Diagram** (Mermaid `sequenceDiagram`) present for every inter-component synchronous call or event flow in the relevant design doc | §4 below |
+| DES-G9 | **State Diagram** (Mermaid `stateDiagram-v2`) present for every component or feature with a non-trivial lifecycle (≥ 3 states) | §4 below |
+| DES-G10 | **Workflow Diagram** (Mermaid `flowchart`) present for every operational flow (deploy, failover, alerting, runbook trigger) referenced by the design | §4 below |
+| DES-G11 | Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names) | §4 below |
 
 ---
 
-## 4. Commit Convention
+## 4. Mandatory Diagrams (Mermaid-only)
+
+> **Universal rule for all roles:** Every diagram in this repository MUST be authored in **Mermaid**. ASCII directory trees are the only exception. The six canonical diagram types adopted across the blueprint are: **Architecture Diagram, Workflow Diagram, State Diagram, Sequence Diagram, ER Diagram, User Journey**.
+
+**This role (System Designer) MUST author the following diagrams:**
+
+| Diagram Type | Where it lives | When it is mandatory |
+|---|---|---|
+| **Sequence Diagram** (`sequenceDiagram`) | The relevant `design/*.md` (security, resilience, infrastructure, monitoring, database) | For every inter-component synchronous call OR event/message flow the design introduces. |
+| **State Diagram** (`stateDiagram-v2`) | The relevant `design/*.md` | For every component or feature with a non-trivial lifecycle (≥ 3 distinct states), e.g. circuit-breaker states, session states, document lifecycle. |
+| **Workflow Diagram** (`flowchart`) | `design/infrastructure-design.md`, `design/resilience-design.md`, `design/monitoring-design.md` | For every operational flow the design references: deploy, rollback, failover, incident alert escalation, etc. |
+
+**Convention reminder** (full rules in `design/README.md` §Mermaid Conventions):
+
+```text
+%% Title: <descriptive title>
+%% Type:  <flowchart | sequenceDiagram | stateDiagram-v2 | erDiagram | journey | C4Context>
+<diagram-type> <direction>
+    ...
+```
+
+Additional rules: use `<br/>` (never `\n`) inside labels; quote subgraph names containing spaces; use `[/"PLACEHOLDER: X"/]` parallelograms for template gaps; prepend an HTML-comment Purpose/Audience/Last-reviewed block above non-trivial diagrams.
+
+**Example — State Diagram skeleton:**
+
+```mermaid
+%% Title: Circuit Breaker — lifecycle states
+%% Type:  stateDiagram-v2
+stateDiagram-v2
+    direction LR
+    [*] --> Closed
+    Closed --> Open: failure threshold exceeded
+    Open --> HalfOpen: cool-down elapsed
+    HalfOpen --> Closed: probe succeeds
+    HalfOpen --> Open: probe fails
+```
+
+---
+
+## 5. Commit Convention
 
 Prefix: `[Designer]`
 
@@ -125,3 +170,4 @@ human review — abuse will be caught downstream and may revoke the agent's auth
 |---------|------------|-------------------|----------------|
 | 1.0     | 2026-05-01 | System Designer  | Initial design compliance manifest. |
 | 1.1     | 2026-05-15 | Designer          | Add Pre-Work Gate section (mandatory docs-before-code checklist) aligned with `.github/workflows/prework-gate.yml` and the README Mandatory Work Order. |
+| 1.2     | 2026-05-16 | System Designer  | Mandate six canonical Mermaid diagram types repo-wide. Designer role MUST author Sequence Diagram (inter-component flows), State Diagram (lifecycles), and Workflow Diagram (operational flows). Adds §4 Mandatory Diagrams, gates DES-G8/G9/G10/G11; renumbers Commit Convention to §5. |

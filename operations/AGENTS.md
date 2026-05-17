@@ -14,11 +14,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `OPS-AGENTS-001` |
-| **Version** | `1.0` |
+| **Version** | `1.2` |
 | **Status** | `Approved` |
 | **Owner** | Operator (VM-5) |
 | **Read By** | Operator agents |
-| **Last Updated** | 2026-05-01 |
+| **Last Updated** | 2026-05-16 |
 
 ---
 
@@ -74,6 +74,8 @@
   - [ ] OPS-G8  deployment-log.md and operation-log.md entries committed
   - [ ] OPS-G9  SLA/SLO impact recorded in sla-slo-tracking.md
   - [ ] OPS-G10 No secrets / real PHI / real PII in any committed file
+  - [ ] OPS-G13 Mandatory diagrams produced as Mermaid (see §4): Workflow Diagram for every runbook, State Diagram for incident lifecycle
+  - [ ] OPS-G14 Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names)
 ```
 
 ---
@@ -94,10 +96,53 @@
 | OPS-G10 | No secrets / real PHI / real PII in any committed file | admin-portal-validation §5.2 |
 | OPS-G11 | If healthcare scope: BAA register, audit-export evidence, and PHI flow updated when relevant | `operations/healthcare-readiness.md` |
 | OPS-G12 | Revision History rows added in every modified Markdown file | admin-portal-validation §3.3 |
+| OPS-G13 | **Workflow Diagram** (Mermaid `flowchart`) present and current for every runbook in `operations/deployment-runbook.md` and `operations/incident-reports/README.md` | §4 below |
+| OPS-G14 | **State Diagram** (Mermaid `stateDiagram-v2`) present for the incident lifecycle in `operations/incident-reports/README.md` | §4 below |
+| OPS-G15 | Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names) | §4 below |
 
 ---
 
-## 4. Commit Convention
+## 4. Mandatory Diagrams (Mermaid-only)
+
+> **Universal rule for all roles:** Every diagram in this repository MUST be authored in **Mermaid**. ASCII directory trees are the only exception. The six canonical diagram types adopted across the blueprint are: **Architecture Diagram, Workflow Diagram, State Diagram, Sequence Diagram, ER Diagram, User Journey**.
+
+**This role (Operator) MUST author the following diagrams:**
+
+| Diagram Type | Where it lives | When it is mandatory |
+|---|---|---|
+| **Workflow Diagram** (`flowchart`) | `operations/deployment-runbook.md`, `operations/incident-reports/README.md` | One per runbook (deploy, rollback, failover, restore, scaling) and one for the incident-response top-level flow. Kept current with every runbook revision. |
+| **State Diagram** (`stateDiagram-v2`) | `operations/incident-reports/README.md` | One for the incident lifecycle (Detected → Triaged → Mitigated → Resolved → Post-mortem). |
+
+**Convention reminder** (full rules in `design/README.md` §Mermaid Conventions):
+
+```text
+%% Title: <descriptive title>
+%% Type:  <flowchart | stateDiagram-v2>
+<diagram-type> <direction>
+    ...
+```
+
+Additional rules: use `<br/>` (never `\n`) inside labels; quote subgraph names containing spaces; use `[/"PLACEHOLDER: X"/]` parallelograms for template gaps; prepend an HTML-comment Purpose/Audience/Last-reviewed block above non-trivial diagrams.
+
+**Example — Deployment runbook Workflow skeleton:**
+
+```mermaid
+%% Title: Deployment Runbook — happy path
+%% Type:  flowchart
+flowchart LR
+    A["Pre-deploy checklist"] --> B{QC report = PROMOTE?}
+    B -- No --> H["HOLD, file DEF-NNN"]
+    B -- Yes --> C["Deploy to UAT"]
+    C --> D["Smoke tests"]
+    D --> E{All green?}
+    E -- No --> R["Rollback (≤ 5 min)"]
+    E -- Yes --> F["Production deploy<br/>(requires approvals)"]
+    F --> G["Post-deploy verification"]
+```
+
+---
+
+## 5. Commit Convention
 
 Prefix: `[Ops]`
 
@@ -112,7 +157,7 @@ Prefix: `[Ops]`
 
 ---
 
-## 5. Failure Modes & Self-Recovery
+## 6. Failure Modes & Self-Recovery
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -158,3 +203,4 @@ human review — abuse will be caught downstream and may revoke the agent's auth
 |---------|------------|---------------|----------------|
 | 1.0     | 2026-05-01 | Operator + Architect | Initial operations compliance manifest. Reinforces "every deploy via GitHub push" and a 12-gate pre-flight checklist. |
 | 1.1     | 2026-05-15 | Ops Engineer      | Add Pre-Work Gate section (mandatory docs-before-code checklist) aligned with `.github/workflows/prework-gate.yml` and the README Mandatory Work Order. |
+| 1.2     | 2026-05-16 | Operator (VM-5)   | Mandate six canonical Mermaid diagram types repo-wide. Operations role MUST author Workflow Diagram (every runbook) and State Diagram (incident lifecycle). Adds §4 Mandatory Diagrams, gates OPS-G13/G14/G15; renumbers Commit Convention to §5 and Failure Modes to §6. |

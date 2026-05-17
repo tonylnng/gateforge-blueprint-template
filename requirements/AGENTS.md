@@ -12,11 +12,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | `REQ-AGENTS-001` |
-| **Version** | `1.0` |
+| **Version** | `1.2` |
 | **Status** | `Approved` |
 | **Owner** | System Architect |
 | **Read By** | System Architect (primary) |
-| **Last Updated** | 2026-05-01 |
+| **Last Updated** | 2026-05-16 |
 
 ---
 
@@ -72,6 +72,8 @@ Copy this block into the PR description **filled in**. Empty boxes fail validati
   - [ ] Every new FR-<MOD>-NNN cites the source US-NNN
   - [ ] NFR additions reference an ISO 25010 quality characteristic
   - [ ] No duplicate IDs introduced
+  - [ ] Mandatory diagrams produced as Mermaid (see §5): User Journey for every Epic, Workflow Diagram for every critical user story
+  - [ ] Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names)
   - [ ] Revision History row added in every modified file
 ```
 
@@ -87,10 +89,52 @@ Copy this block into the PR description **filled in**. Empty boxes fail validati
 | REQ-G4 | All IDs match the regex in §3.4 | §3.4 |
 | REQ-G5 | A Revision History row is added to every modified file, version field bumped | §3.3 |
 | REQ-G6 | If a requirement contradicts an active ADR, the ADR is superseded in `project/decision-log.md` in the same PR | §4 |
+| REQ-G7 | Every Epic has a **User Journey** Mermaid diagram in `requirements/user-requirements.md` | §5 below |
+| REQ-G8 | Every critical user story (US-NNN tagged `flow:critical` or with multi-step acceptance criteria) has a **Workflow Diagram** in Mermaid | §5 below |
+| REQ-G9 | Every Mermaid block follows repo conventions (`%% Title:` / `%% Type:` headers, `<br/>` not `\n`, quoted subgraph names) | §5 below |
 
 ---
 
-## 5. Commit Convention
+## 5. Mandatory Diagrams (Mermaid-only)
+
+> **Universal rule for all roles:** Every diagram in this repository MUST be authored in **Mermaid**. ASCII directory trees are the only exception. Mermaid produces user-friendly, version-controlled, GitHub-renderable documentation. The six canonical diagram types adopted across the blueprint are: **Architecture Diagram, Workflow Diagram, State Diagram, Sequence Diagram, ER Diagram, User Journey**.
+
+**This role (System Architect — Requirements) MUST author the following diagrams:**
+
+| Diagram Type | Where it lives | When it is mandatory |
+|---|---|---|
+| **User Journey** (`journey`) | `requirements/user-requirements.md` (one per Epic) | For every Epic before any child US is approved |
+| **Workflow Diagram** (`flowchart`) | `requirements/user-requirements.md` (per US) or per-feature sub-doc | For every US-NNN whose acceptance criteria span ≥ 3 sequential steps OR is tagged `flow:critical` |
+
+**Convention reminder** (mandatory for every Mermaid block; full rules in `design/README.md` §Mermaid Conventions):
+
+```text
+%% Title: <descriptive title>
+%% Type:  <flowchart | journey | erDiagram | sequenceDiagram | stateDiagram-v2 | C4Context>
+<diagram-type> <direction>
+    ...
+```
+
+Additional rules: use `<br/>` (never `\n`) inside labels; quote subgraph names containing spaces; use `[/"PLACEHOLDER: X"/]` parallelograms for template gaps; prepend an HTML-comment block (Purpose / Audience / Last-reviewed) above non-trivial diagrams.
+
+**Example — User Journey skeleton:**
+
+```mermaid
+%% Title: <Epic name> — End-user happy path
+%% Type:  journey
+journey
+    title <Epic name>
+    section Discover
+      Find feature: 3: User
+    section Use
+      Complete task: 4: User
+    section Outcome
+      Receive value: 5: User
+```
+
+---
+
+## 6. Commit Convention
 
 Use the prefix `[Architect]` and one of these types:
 
@@ -108,7 +152,7 @@ Per [`/VERSIONING.md`](../VERSIONING.md):
 
 ---
 
-## 6. Failure Modes & Self-Recovery
+## 7. Failure Modes & Self-Recovery
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -154,3 +198,4 @@ human review — abuse will be caught downstream and may revoke the agent's auth
 |---------|------------|-------------------|----------------|
 | 1.0     | 2026-05-01 | System Architect  | Initial requirements compliance manifest. Defines mandatory reading order, Pre-Flight Acknowledgement, six mandatory gates, and commit convention. |
 | 1.1     | 2026-05-15 | System Architect  | Add Pre-Work Gate section (mandatory docs-before-code checklist) aligned with `.github/workflows/prework-gate.yml` and the README Mandatory Work Order. |
+| 1.2     | 2026-05-16 | System Architect  | Mandate six canonical Mermaid diagram types repo-wide. Requirements role MUST author User Journey (every Epic) and Workflow Diagram (every critical US). Adds §5 Mandatory Diagrams, gates REQ-G7/G8/G9; renumbers Commit Convention to §6 and Failure Modes to §7. |
