@@ -34,6 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - 2026-05-17
+
+### Added
+- [Architect] mandate six Mermaid diagram types in all role manifests
+
+
+---
+
 ## [0.3.1] - 2026-05-16
 
 ### Changed
